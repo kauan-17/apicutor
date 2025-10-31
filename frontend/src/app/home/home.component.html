@@ -1,0 +1,134 @@
+<div class="container">
+  <div class="row mb-4">
+    <div class="col-12">
+      <h1 class="display-4">Bem-vindo ao Apicutor</h1>
+      <p class="lead">Sistema de gerenciamento para apicultura</p>
+    </div>
+  </div>
+
+  @if (carregando) {
+    <div class="row">
+      <div class="col-12 text-center">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Carregando...</span>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (!carregando) {
+  <div class="row">
+    <div class="col-md-4 mb-4">
+      <div class="card h-100">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">Resumo</h5>
+        </div>
+        <div class="card-body">
+          <div class="d-flex justify-content-between mb-3">
+            <span>Total de Apiários:</span>
+            <span class="fw-bold">{{apiarios.length}}</span>
+          </div>
+          <div class="d-flex justify-content-between mb-3">
+            <span>Total de Colmeias:</span>
+            <span class="fw-bold">{{colmeias.length}}</span>
+          </div>
+          <div class="d-flex justify-content-between">
+            <span>Produção Total (Mel):</span>
+            <span class="fw-bold">{{producaoTotal}} kg</span>
+          </div>
+        </div>
+        <div class="card-footer">
+          <a routerLink="/relatorios" class="btn btn-outline-primary btn-sm">Ver relatórios completos</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-8 mb-4">
+      <div class="card h-100">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">Apiários</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Colmeias</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (apiario of apiarios; track apiario.id) {
+                  <tr>
+                  <td>{{apiario.nome}}</td>
+                  <td>{{apiario.colmeias}}</td>
+                  <td>
+                    <button class="btn btn-sm btn-outline-primary me-1">Detalhes</button>
+                    <button class="btn btn-sm btn-outline-secondary">Editar</button>
+                  </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card-footer">
+          <button class="btn btn-primary">Adicionar Apiário</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+
+  @if (!carregando) {
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">Colmeias Recentes</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Identificação</th>
+                  <th>Tipo</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (colmeia of colmeias; track colmeia.id) {
+                  <tr>
+                  <td>{{colmeia.identificacao}}</td>
+                  <td>{{colmeia.tipo}}</td>
+                  <td>
+                    <span class="badge"
+                      [class.bg-success]="colmeia.status === 'ATIVA'"
+                      [class.bg-warning]="colmeia.status === 'EM_OBSERVACAO'"
+                      [class.bg-danger]="colmeia.status === 'DOENTE' || colmeia.status === 'PERDIDA'"
+                      [class.bg-secondary]="colmeia.status === 'INATIVA'">
+                      {{colmeia.status.replace('_', ' ')}}
+                    </span>
+                  </td>
+                  <td>
+                    <button class="btn btn-sm btn-outline-primary me-1">Detalhes</button>
+                    <button class="btn btn-sm btn-outline-info me-1">Inspecionar</button>
+                    <button class="btn btn-sm btn-outline-success">Produção</button>
+                  </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card-footer">
+          <button class="btn btn-primary">Adicionar Colmeia</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+</div>
