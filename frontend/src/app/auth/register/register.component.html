@@ -9,7 +9,7 @@
           Registro realizado com sucesso! Redirecionando para o login...
         </div>
         
-        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" *ngIf="!success">
+        <form *ngIf="registerForm && !success" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
           <div class="alert alert-danger" *ngIf="errorMessage">
             {{ errorMessage }}
           </div>

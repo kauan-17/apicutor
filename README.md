@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# apicutor
-=======
 # Apicutor - Sistema de Gerenciamento para Apicultura
 
 ## Descrição
@@ -59,4 +56,3 @@ O frontend estará disponível em http://localhost:4200
 - Backend: Spring Boot, Spring Security, Spring Data JPA, H2 Database
 - Frontend: Angular, Bootstrap
 - Autenticação: JWT
->>>>>>> 18fd4ec (projeto para o tc)

@@ -22,7 +22,7 @@ export class RegisterComponent {
   ) {
     this.registerForm = this.formBuilder.group({
       nome: ['', Validators.required],
-      username: ['', Validators.required],
+      username: ['', [Validators.required, Validators.minLength(4)]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', Validators.required]
@@ -52,7 +52,9 @@ export class RegisterComponent {
         }, 2000);
       },
       error: (err: any) => {
-        this.errorMessage = 'Falha no registro. Tente novamente.';
+        this.errorMessage = (err?.error && typeof err.error === 'string')
+          ? err.error
+          : 'Falha no registro. Tente novamente.';
         this.loading = false;
       }
     });

@@ -1,4 +1,4 @@
-package com.apicutor.config;
+package com.apicultor.apicutor.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

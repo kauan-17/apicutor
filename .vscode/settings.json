@@ -1,3 +1,9 @@
 {
-    "java.compile.nullAnalysis.mode": "automatic"
+    "java.compile.nullAnalysis.mode": "automatic",
+    "java.project.sourcePaths": [
+        "backend/src/main/java"
+    ],
+    "java.project.resourcePaths": [
+        "backend/src/main/resources"
+    ]
 }

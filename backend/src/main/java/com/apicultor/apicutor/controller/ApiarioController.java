@@ -1,4 +1,4 @@
-package com.apicutor.controller;
+package com.apicultor.apicutor.controller;
 
 import com.apicultor.apicutor.model.Apiario;
 import com.apicultor.apicutor.model.Usuario;
