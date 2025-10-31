@@ -1,0 +1,10 @@
+/* estilos mínimos para o formulário de login */
+:host {
+  display: block;
+  padding: 16px;
+}
+
+form {
+  max-width: 360px;
+  margin: 0 auto;
+}

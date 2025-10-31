@@ -1,0 +1,10 @@
+/* estilos mínimos para o formulário de registro */
+:host {
+  display: block;
+  padding: 16px;
+}
+
+form {
+  max-width: 420px;
+  margin: 0 auto;
+}
