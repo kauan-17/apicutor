@@ -1,0 +1,2 @@
+.container h2 { color: var(--secondary-color); }
+.alert { background: linear-gradient(135deg, var(--honey-color), var(--primary-strong)); color: #fff; }
