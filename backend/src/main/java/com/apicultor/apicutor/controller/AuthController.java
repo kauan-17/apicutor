@@ -3,8 +3,10 @@ package com.apicultor.apicutor.controller;
 import com.apicultor.apicutor.model.Usuario;
 import com.apicultor.apicutor.repository.UsuarioRepository;
 import com.apicultor.apicutor.security.JwtTokenProvider;
+import com.apicultor.apicutor.service.AuditService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collections;
@@ -26,32 +29,57 @@ public class AuthController {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider tokenProvider;
+    private final AuditService auditService;
 
     public AuthController(AuthenticationManager authenticationManager, UsuarioRepository usuarioRepository,
-                          PasswordEncoder passwordEncoder, JwtTokenProvider tokenProvider) {
+                          PasswordEncoder passwordEncoder, JwtTokenProvider tokenProvider, AuditService auditService) {
         this.authenticationManager = authenticationManager;
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenProvider = tokenProvider;
+        this.auditService = auditService;
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequest.getUsername(),
-                        loginRequest.getPassword()
-                )
-        );
+        try {
+            if (auditService.isBruteForceAttempt(loginRequest.getUsername())) {
+                return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                    .body(Map.of("error", "Muitas tentativas. Tente novamente em 5 minutos."));
+            }
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = tokenProvider.generateToken(authentication);
-        
-        Map<String, Object> response = new HashMap<>();
-        response.put("token", jwt);
-        response.put("tokenType", "Bearer");
-        
-        return ResponseEntity.ok(response);
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequest.getUsername(),
+                            loginRequest.getPassword()
+                    )
+            );
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String jwt = tokenProvider.generateToken(authentication);
+            
+            Usuario usuario = usuarioRepository.findByUsername(loginRequest.getUsername())
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+            
+            auditService.logLoginSuccess(usuario);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("token", jwt);
+            response.put("tokenType", "Bearer");
+            response.put("username", usuario.getUsername());
+            response.put("email", usuario.getEmail());
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (BadCredentialsException e) {
+            auditService.logLoginFailure(loginRequest.getUsername(), "Credenciais inválidas");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of("error", "Usuário ou senha inválidos"));
+        } catch (Exception e) {
+            auditService.logLoginFailure(loginRequest.getUsername(), e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", "Erro ao processar login"));
+        }
     }
 
     @PostMapping("/register")
@@ -73,7 +101,11 @@ public class AuthController {
 
         usuarioRepository.save(usuario);
 
-        return ResponseEntity.ok("Usuário registrado com sucesso!");
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Usuário registrado com sucesso!");
+        response.put("id", usuario.getId());
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     public static class LoginRequest {

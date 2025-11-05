@@ -6,6 +6,7 @@ interface Apiario {
   id: number;
   nome: string;
   colmeias: number;
+  localizacao?: string;
 }
 
 interface Colmeia {
@@ -37,19 +38,23 @@ export class HomeComponent implements OnInit {
     // Simulando dados para demonstração
     setTimeout(() => {
       this.apiarios = [
-        { id: 1, nome: 'Apiário Central', colmeias: 15 },
-        { id: 2, nome: 'Apiário Norte', colmeias: 12 },
-        { id: 3, nome: 'Apiário Sul', colmeias: 8 }
+        { id: 1, nome: 'Apiário Central', colmeias: 15, localizacao: 'Área Central, Fazenda São João' },
+        { id: 2, nome: 'Apiário Norte', colmeias: 12, localizacao: 'Zona Norte, Sítio Verde' },
+        { id: 3, nome: 'Apiário Sul', colmeias: 8, localizacao: 'Região Sul, Chácara Flora' }
       ];
 
       this.colmeias = [
-        { id: 1, identificacao: 'C001', tipo: 'Langstroth', status: 'Ativa' },
-        { id: 2, identificacao: 'C002', tipo: 'Langstroth', status: 'Ativa' },
-        { id: 3, identificacao: 'C003', tipo: 'Top Bar', status: 'Manutenção' }
+        { id: 1, identificacao: 'C001', tipo: 'Langstroth', status: 'ATIVA' },
+        { id: 2, identificacao: 'C002', tipo: 'Langstroth', status: 'ATIVA' },
+        { id: 3, identificacao: 'C003', tipo: 'Top Bar', status: 'EM_OBSERVACAO' }
       ];
 
       this.producaoTotal = 245.5;
       this.carregando = false;
     }, 1000);
+  }
+
+  getActiveColmeiasCount(): number {
+    return this.colmeias.filter(c => c.status === 'ATIVA').length;
   }
 }

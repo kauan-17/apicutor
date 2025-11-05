@@ -7,16 +7,29 @@
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav me-auto">
         <li class="nav-item" *ngIf="authService.isAuthenticated()">
-          <a class="nav-link" routerLink="/">Home</a>
+          <a class="nav-link" routerLink="/dashboard">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+          </a>
         </li>
         <li class="nav-item" *ngIf="authService.isAuthenticated()">
-          <a class="nav-link" routerLink="/apiarios">Apiários</a>
+          <a class="nav-link" routerLink="/home">
+            <i class="fas fa-home"></i> Home
+          </a>
         </li>
         <li class="nav-item" *ngIf="authService.isAuthenticated()">
-          <a class="nav-link" routerLink="/colmeias">Colmeias</a>
+          <a class="nav-link" routerLink="/apiarios">
+            <i class="fas fa-map-marker-alt"></i> Apiários
+          </a>
         </li>
         <li class="nav-item" *ngIf="authService.isAuthenticated()">
-          <a class="nav-link" routerLink="/producao">Produção</a>
+          <a class="nav-link" routerLink="/colmeias">
+            <i class="fas fa-th"></i> Colmeias
+          </a>
+        </li>
+        <li class="nav-item" *ngIf="authService.isAuthenticated()">
+          <a class="nav-link" routerLink="/producao">
+            <i class="fas fa-chart-line"></i> Produção
+          </a>
         </li>
       </ul>
       <ul class="navbar-nav">

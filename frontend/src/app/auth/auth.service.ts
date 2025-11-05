@@ -39,4 +39,21 @@ export class AuthService {
   getToken(): string | null {
     return localStorage.getItem(this.tokenKey);
   }
+
+  getCurrentUser(): any {
+    const token = this.getToken();
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return {
+          username: payload.sub,
+          roles: payload.roles || []
+        };
+      } catch (error) {
+        console.error('Erro ao decodificar token:', error);
+        return null;
+      }
+    }
+    return null;
+  }
 }

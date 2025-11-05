@@ -8,6 +8,7 @@ import { AppComponent } from './app.component';
 import { LoginComponent } from './auth/login/login.component';
 import { RegisterComponent } from './auth/register/register.component';
 import { HomeComponent } from './home/home.component';
+import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { AuthInterceptor } from './auth/auth.interceptor';
 import { AuthGuard } from './auth/auth.guard';
 
@@ -16,7 +17,8 @@ import { AuthGuard } from './auth/auth.guard';
     AppComponent,
     LoginComponent,
     RegisterComponent,
-    HomeComponent
+    HomeComponent,
+    DashboardComponent
   ],
   imports: [
     BrowserModule,
@@ -24,10 +26,12 @@ import { AuthGuard } from './auth/auth.guard';
     ReactiveFormsModule,
     HttpClientModule,
     RouterModule.forRoot([
-      { path: '', component: HomeComponent, canActivate: [AuthGuard] },
+      { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
+      { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
+      { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
       { path: 'login', component: LoginComponent },
       { path: 'register', component: RegisterComponent },
-      { path: '**', redirectTo: '' }
+      { path: '**', redirectTo: '/dashboard' }
     ])
   ],
   providers: [

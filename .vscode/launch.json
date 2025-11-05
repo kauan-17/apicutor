@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-ApicutorApplication<apicutor>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.apicultor.apicutor.ApicutorApplication",
+            "projectName": "apicutor",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

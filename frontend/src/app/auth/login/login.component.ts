@@ -11,8 +11,9 @@ import { AuthService } from '../auth.service';
 })
 export class LoginComponent {
   loginForm: FormGroup;
-  errorMessage = '';
+  error = '';
   loading = false;
+  submitted = false;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -21,26 +22,30 @@ export class LoginComponent {
   ) {
     this.loginForm = this.formBuilder.group({
       username: ['', Validators.required],
-      password: ['', Validators.required]
+      password: ['', [Validators.required, Validators.minLength(6)]]
     });
   }
 
+  get f() { return this.loginForm.controls; }
+
   onSubmit(): void {
+    this.submitted = true;
+    
     if (this.loginForm.invalid) {
       return;
     }
 
     this.loading = true;
-    this.errorMessage = '';
+    this.error = '';
 
     const { username, password } = this.loginForm.value;
 
     this.authService.login(username, password).subscribe({
       next: () => {
-        this.router.navigate(['/']);
+        this.router.navigate(['/dashboard']);
       },
       error: (err: any) => {
-        this.errorMessage = 'Falha no login. Verifique suas credenciais.';
+        this.error = err.error?.message || 'Falha no login. Verifique suas credenciais.';
         this.loading = false;
       }
     });

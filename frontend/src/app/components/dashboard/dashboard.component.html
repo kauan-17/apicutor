@@ -1,0 +1,159 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="welcome-header text-center mb-5 fade-in-up">
+        <h1 class="display-4 text-white">
+          <i class="fas fa-bee dashboard-icon pulse"></i>
+          Bem-vindo, {{ userName }}!
+        </h1>
+        <p class="lead text-white-50">Gerencie seus apiários e colmeias com facilidade</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cards de estatísticas -->
+  <div class="row" *ngIf="!loading">
+    <div class="col-lg-3 col-md-6 mb-4">
+      <div class="card dashboard-card text-center fade-in-up">
+        <div class="card-body">
+          <i class="fas fa-home dashboard-icon"></i>
+          <div class="dashboard-number">{{ stats.totalApiarios }}</div>
+          <div class="dashboard-label">Apiários</div>
+          <small class="text-muted">Total cadastrado</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 mb-4">
+      <div class="card dashboard-card text-center fade-in-up" style="animation-delay: 0.1s;">
+        <div class="card-body">
+          <i class="fas fa-th dashboard-icon"></i>
+          <div class="dashboard-number">{{ stats.totalColmeias }}</div>
+          <div class="dashboard-label">Colmeias</div>
+          <small class="text-muted">Ativas no momento</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 mb-4">
+      <div class="card dashboard-card text-center fade-in-up" style="animation-delay: 0.2s;">
+        <div class="card-body">
+          <i class="fas fa-chart-line dashboard-icon"></i>
+          <div class="dashboard-number">{{ stats.producaoMes }} kg</div>
+          <div class="dashboard-label">Produção Mês</div>
+          <small class="text-muted">Mel produzido</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 mb-4">
+      <div class="card dashboard-card text-center fade-in-up" style="animation-delay: 0.3s;">
+        <div class="card-body">
+          <i class="fas fa-exclamation-triangle dashboard-icon" 
+             [ngClass]="{'text-warning': stats.alertasPendentes > 0, 'text-success': stats.alertasPendentes === 0}"></i>
+          <div class="dashboard-number" [ngClass]="{'text-warning': stats.alertasPendentes > 0}">
+            {{ stats.alertasPendentes }}
+          </div>
+          <div class="dashboard-label">Alertas</div>
+          <small class="text-muted">Pendentes</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="row" *ngIf="loading">
+    <div class="col-12 text-center py-5">
+      <div class="loading-spinner"></div>
+      <p class="text-white mt-3">Carregando dados do dashboard...</p>
+    </div>
+  </div>
+
+  <!-- Ações rápidas -->
+  <div class="row mt-5" *ngIf="!loading">
+    <div class="col-12">
+      <div class="card fade-in-up" style="animation-delay: 0.4s;">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="fas fa-bolt"></i>
+            Ações Rápidas
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-3 mb-3">
+              <button class="btn btn-primary btn-block" routerLink="/apiarios">
+                <i class="fas fa-plus"></i> Novo Apiário
+              </button>
+            </div>
+            <div class="col-md-3 mb-3">
+              <button class="btn btn-success btn-block" routerLink="/colmeias">
+                <i class="fas fa-plus"></i> Nova Colmeia
+              </button>
+            </div>
+            <div class="col-md-3 mb-3">
+              <button class="btn btn-info btn-block" routerLink="/producao">
+                <i class="fas fa-chart-bar"></i> Registrar Produção
+              </button>
+            </div>
+            <div class="col-md-3 mb-3">
+              <button class="btn btn-warning btn-block" (click)="refreshData()">
+                <i class="fas fa-sync-alt"></i> Atualizar Dados
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Informações rápidas -->
+  <div class="row mt-4" *ngIf="!loading">
+    <div class="col-md-6">
+      <div class="card fade-in-up" style="animation-delay: 0.5s;">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="fas fa-info-circle"></i>
+            Dicas de Manejo
+          </h5>
+        </div>
+        <div class="card-body">
+          <ul class="list-unstyled">
+            <li class="mb-2">
+              <i class="fas fa-check-circle text-success"></i>
+              Verifique as colmeias regularmente
+            </li>
+            <li class="mb-2">
+              <i class="fas fa-check-circle text-success"></i>
+              Monitore a produção de mel
+            </li>
+            <li class="mb-2">
+              <i class="fas fa-check-circle text-success"></i>
+              Mantenha registros atualizados
+            </li>
+            <li class="mb-2">
+              <i class="fas fa-check-circle text-success"></i>
+              Observe o comportamento das abelhas
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card fade-in-up" style="animation-delay: 0.6s;">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="fas fa-calendar-alt"></i>
+            Próximas Tarefas
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="text-center text-muted py-3">
+            <i class="fas fa-clipboard-list fa-2x mb-2"></i>
+            <p>Em breve: sistema de lembretes e tarefas</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

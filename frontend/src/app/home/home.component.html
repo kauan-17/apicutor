@@ -1,134 +1,249 @@
-<div class="container">
-  <div class="row mb-4">
-    <div class="col-12">
-      <h1 class="display-4">Bem-vindo ao Apicutor</h1>
-      <p class="lead">Sistema de gerenciamento para apicultura</p>
+<!-- Modern Home Component -->
+<div class="home-container">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-lg-6">
+          <div class="hero-content">
+            <h1 class="hero-title">Bem-vindo ao <span class="text-primary">Apicutor</span></h1>
+            <p class="hero-subtitle">Sistema inteligente de gerenciamento para apicultura moderna</p>
+            <div class="hero-buttons">
+              <button routerLink="/apiarios" class="btn btn-primary btn-lg me-3">
+                <i class="fas fa-map-marked-alt me-2"></i>Meus Apiários
+              </button>
+              <button routerLink="/colmeias" class="btn btn-outline-primary btn-lg">
+                <i class="fas fa-bee me-2"></i>Minhas Colmeias
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="hero-image">
+            <div class="bee-animation">
+              <i class="fas fa-bee"></i>
+            </div>
+            <div class="honeycomb-pattern">
+              <div class="hex hex-1"></div>
+              <div class="hex hex-2"></div>
+              <div class="hex hex-3"></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
+  </section>
 
-  @if (carregando) {
-    <div class="row">
-      <div class="col-12 text-center">
+  <!-- Loading State -->
+  <div *ngIf="carregando" class="loading-section">
+    <div class="container text-center">
+      <div class="spinner-container">
         <div class="spinner-border text-primary" role="status">
           <span class="visually-hidden">Carregando...</span>
         </div>
-      </div>
-    </div>
-  }
-
-  @if (!carregando) {
-  <div class="row">
-    <div class="col-md-4 mb-4">
-      <div class="card h-100">
-        <div class="card-header bg-primary text-white">
-          <h5 class="mb-0">Resumo</h5>
-        </div>
-        <div class="card-body">
-          <div class="d-flex justify-content-between mb-3">
-            <span>Total de Apiários:</span>
-            <span class="fw-bold">{{apiarios.length}}</span>
-          </div>
-          <div class="d-flex justify-content-between mb-3">
-            <span>Total de Colmeias:</span>
-            <span class="fw-bold">{{colmeias.length}}</span>
-          </div>
-          <div class="d-flex justify-content-between">
-            <span>Produção Total (Mel):</span>
-            <span class="fw-bold">{{producaoTotal}} kg</span>
-          </div>
-        </div>
-        <div class="card-footer">
-          <a routerLink="/relatorios" class="btn btn-outline-primary btn-sm">Ver relatórios completos</a>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-8 mb-4">
-      <div class="card h-100">
-        <div class="card-header bg-primary text-white">
-          <h5 class="mb-0">Apiários</h5>
-        </div>
-        <div class="card-body">
-          <div class="table-responsive">
-            <table class="table table-hover">
-              <thead>
-                <tr>
-                  <th>Nome</th>
-                  <th>Colmeias</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (apiario of apiarios; track apiario.id) {
-                  <tr>
-                  <td>{{apiario.nome}}</td>
-                  <td>{{apiario.colmeias}}</td>
-                  <td>
-                    <button class="btn btn-sm btn-outline-primary me-1">Detalhes</button>
-                    <button class="btn btn-sm btn-outline-secondary">Editar</button>
-                  </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div class="card-footer">
-          <button class="btn btn-primary">Adicionar Apiário</button>
-        </div>
+        <p class="mt-3 text-muted">Carregando dados...</p>
       </div>
     </div>
   </div>
-  }
 
-  @if (!carregando) {
-  <div class="row">
-    <div class="col-12">
-      <div class="card">
-        <div class="card-header bg-primary text-white">
-          <h5 class="mb-0">Colmeias Recentes</h5>
+  <!-- Dashboard Content -->
+  <div *ngIf="!carregando" class="dashboard-section">
+    <div class="container">
+      <!-- Statistics Cards -->
+      <div class="row mb-5">
+        <div class="col-lg-3 col-md-6 mb-4">
+          <div class="stat-card">
+            <div class="stat-icon bg-primary">
+              <i class="fas fa-map-marked-alt"></i>
+            </div>
+            <div class="stat-content">
+              <h3 class="stat-number">{{apiarios.length}}</h3>
+              <p class="stat-label">Apiários</p>
+            </div>
+            <div class="stat-decoration">
+              <div class="hex-small"></div>
+            </div>
+          </div>
         </div>
-        <div class="card-body">
-          <div class="table-responsive">
-            <table class="table table-hover">
-              <thead>
-                <tr>
-                  <th>Identificação</th>
-                  <th>Tipo</th>
-                  <th>Status</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (colmeia of colmeias; track colmeia.id) {
-                  <tr>
-                  <td>{{colmeia.identificacao}}</td>
-                  <td>{{colmeia.tipo}}</td>
-                  <td>
-                    <span class="badge"
-                      [class.bg-success]="colmeia.status === 'ATIVA'"
-                      [class.bg-warning]="colmeia.status === 'EM_OBSERVACAO'"
-                      [class.bg-danger]="colmeia.status === 'DOENTE' || colmeia.status === 'PERDIDA'"
-                      [class.bg-secondary]="colmeia.status === 'INATIVA'">
+        
+        <div class="col-lg-3 col-md-6 mb-4">
+          <div class="stat-card">
+            <div class="stat-icon bg-success">
+              <i class="fas fa-bee"></i>
+            </div>
+            <div class="stat-content">
+              <h3 class="stat-number">{{colmeias.length}}</h3>
+              <p class="stat-label">Colmeias</p>
+            </div>
+            <div class="stat-decoration">
+              <div class="hex-small"></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-4">
+          <div class="stat-card">
+            <div class="stat-icon bg-warning">
+              <i class="fas fa-jar"></i>
+            </div>
+            <div class="stat-content">
+              <h3 class="stat-number">{{producaoTotal}}</h3>
+              <p class="stat-label">Kg de Mel</p>
+            </div>
+            <div class="stat-decoration">
+              <div class="hex-small"></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-4">
+          <div class="stat-card">
+            <div class="stat-icon bg-info">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-content">
+              <h3 class="stat-number">{{getActiveColmeiasCount()}}</h3>
+              <p class="stat-label">Ativas</p>
+            </div>
+            <div class="stat-decoration">
+              <div class="hex-small"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content Grid -->
+      <div class="row">
+        <!-- Apiários Section -->
+        <div class="col-lg-8 mb-5">
+          <div class="content-card">
+            <div class="card-header-modern">
+              <h4 class="card-title">
+                <i class="fas fa-map-marked-alt me-2"></i>Meus Apiários
+              </h4>
+              <button routerLink="/apiarios" class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-plus me-1"></i>Novo Apiário
+              </button>
+            </div>
+            <div class="card-body-modern">
+              <div *ngIf="apiarios.length === 0" class="empty-state">
+                <i class="fas fa-map-marked-alt empty-icon"></i>
+                <p class="empty-text">Nenhum apiário cadastrado ainda</p>
+                <button routerLink="/apiarios" class="btn btn-primary">
+                  <i class="fas fa-plus me-2"></i>Adicionar Primeiro Apiário
+                </button>
+              </div>
+              
+              <div *ngIf="apiarios.length > 0" class="apiarios-grid">
+                <div *ngFor="let apiario of apiarios; track apiario.id" class="apiario-card">
+                  <div class="apiario-icon">
+                    <i class="fas fa-map-marker-alt"></i>
+                  </div>
+                  <div class="apiario-info">
+                    <h5 class="apiario-name">{{apiario.nome}}</h5>
+                    <p class="apiario-location">{{apiario.localizacao || 'Localização não informada'}}</p>
+                    <div class="apiario-stats">
+                      <span class="stat-badge">
+                        <i class="fas fa-bee me-1"></i>{{apiario.colmeias}} colmeias
+                      </span>
+                    </div>
+                  </div>
+                  <div class="apiario-actions">
+                    <button class="btn btn-outline-primary btn-sm" [routerLink]="['/apiarios', apiario.id]">
+                      <i class="fas fa-eye"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Colmeias Section -->
+        <div class="col-lg-4 mb-5">
+          <div class="content-card">
+            <div class="card-header-modern">
+              <h4 class="card-title">
+                <i class="fas fa-bee me-2"></i>Colmeias Recentes
+              </h4>
+              <button routerLink="/colmeias" class="btn btn-outline-success btn-sm">
+                <i class="fas fa-plus me-1"></i>Nova
+              </button>
+            </div>
+            <div class="card-body-modern">
+              <div *ngIf="colmeias.length === 0" class="empty-state">
+                <i class="fas fa-bee empty-icon"></i>
+                <p class="empty-text">Nenhuma colmeia cadastrada</p>
+                <button routerLink="/colmeias" class="btn btn-success">
+                  <i class="fas fa-plus me-2"></i>Adicionar Colmeia
+                </button>
+              </div>
+              
+              <div *ngIf="colmeias.length > 0" class="colmeias-list">
+                <div *ngFor="let colmeia of colmeias.slice(0, 5); track colmeia.id" class="colmeia-item">
+                  <div class="colmeia-icon">
+                    <i class="fas fa-bee"></i>
+                  </div>
+                  <div class="colmeia-info">
+                    <h6 class="colmeia-id">{{colmeia.identificacao}}</h6>
+                    <p class="colmeia-type">{{colmeia.tipo}}</p>
+                  </div>
+                  <div class="colmeia-status">
+                    <span class="status-badge" [class.status-active]="colmeia.status === 'ATIVA'"
+                          [class.status-observation]="colmeia.status === 'EM_OBSERVACAO'"
+                          [class.status-inactive]="colmeia.status === 'INATIVA' || colmeia.status === 'DOENTE' || colmeia.status === 'PERDIDA'">
                       {{colmeia.status.replace('_', ' ')}}
                     </span>
-                  </td>
-                  <td>
-                    <button class="btn btn-sm btn-outline-primary me-1">Detalhes</button>
-                    <button class="btn btn-sm btn-outline-info me-1">Inspecionar</button>
-                    <button class="btn btn-sm btn-outline-success">Produção</button>
-                  </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
+                  </div>
+                </div>
+              </div>
+              
+              <div *ngIf="colmeias.length > 5" class="text-center mt-3">
+                <button routerLink="/colmeias" class="btn btn-outline-secondary btn-sm">
+                  Ver todas as colmeias
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="card-footer">
-          <button class="btn btn-primary">Adicionar Colmeia</button>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="row">
+        <div class="col-12">
+          <div class="quick-actions-card">
+            <h4 class="mb-4 text-center">
+              <i class="fas fa-bolt me-2"></i>Ações Rápidas
+            </h4>
+            <div class="row">
+              <div class="col-md-3 col-sm-6 mb-3">
+                <button routerLink="/apiarios" class="btn btn-outline-primary btn-action w-100">
+                  <i class="fas fa-map-marked-alt d-block mb-2"></i>
+                  <span>Gerenciar Apiários</span>
+                </button>
+              </div>
+              <div class="col-md-3 col-sm-6 mb-3">
+                <button routerLink="/colmeias" class="btn btn-outline-success btn-action w-100">
+                  <i class="fas fa-bee d-block mb-2"></i>
+                  <span>Gerenciar Colmeias</span>
+                </button>
+              </div>
+              <div class="col-md-3 col-sm-6 mb-3">
+                <button routerLink="/producao" class="btn btn-outline-warning btn-action w-100">
+                  <i class="fas fa-chart-line d-block mb-2"></i>
+                  <span>Registrar Produção</span>
+                </button>
+              </div>
+              <div class="col-md-3 col-sm-6 mb-3">
+                <button routerLink="/relatorios" class="btn btn-outline-info btn-action w-100">
+                  <i class="fas fa-file-alt d-block mb-2"></i>
+                  <span>Ver Relatórios</span>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
-  }
 </div>
