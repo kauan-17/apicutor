@@ -26,22 +26,124 @@
   margin-bottom: 2rem;
 }
 
-.btn-primary {
-  background-color: #3a7ca5;
-  border-color: #2d6383;
+/* Estilos específicos para Home Component */
+
+/* Hero Section - Melhorando espaçamento */
+.hero-section {
+  padding: 3rem 0 4rem 0 !important;
+  margin-bottom: 1.5rem !important;
 }
 
-.btn-primary:hover {
-  background-color: #2d6383;
-  border-color: #204d6a;
+.hero-content {
+  padding: 2rem !important;
+  margin-bottom: 2rem !important;
 }
 
-.btn-outline-primary {
-  color: #3a7ca5;
-  border-color: #3a7ca5;
+.hero-title {
+  margin-bottom: 1.5rem !important;
+  line-height: 1.3 !important;
 }
 
-.btn-outline-primary:hover {
-  background-color: #3a7ca5;
-  border-color: #3a7ca5;
+.hero-subtitle {
+  margin-bottom: 2.5rem !important;
+  line-height: 1.6 !important;
+}
+
+.hero-buttons {
+  margin-top: 2rem !important;
+  gap: 1.5rem !important;
+}
+
+/* Ajustando tamanho dos botões para ficarem mais profissionais */
+.hero-buttons .btn {
+  padding: 0.75rem 1.5rem !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+
+.hero-buttons .btn-lg {
+  padding: 0.875rem 2rem !important;
+  font-size: 1.1rem !important;
+}
+
+/* Melhorando espaçamento entre seções */
+.dashboard-section {
+  padding-top: 2rem !important;
+}
+
+.content-card {
+  margin-bottom: 2rem !important;
+}
+
+/* Ajustando cores do texto para combinar com o tema apicultor */
+.hero-title {
+  color: var(--secondary-color) !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.1) !important;
+}
+
+.hero-subtitle {
+  color: var(--dark-color) !important;
+  font-weight: 400 !important;
+}
+
+.card-title {
+  color: var(--secondary-color) !important;
+  font-weight: 600 !important;
+}
+
+.stat-label {
+  color: var(--dark-color) !important;
+  font-weight: 500 !important;
+}
+
+.apiario-name, .colmeia-id {
+  color: var(--secondary-color) !important;
+}
+
+.apiario-location, .colmeia-type {
+  color: var(--dark-color) !important;
+}
+
+/* Melhorando visibilidade dos ícones */
+.stat-icon {
+  background: var(--primary-color) !important;
+}
+
+.bee-animation {
+  color: var(--honey-color) !important;
+}
+
+/* Garantindo espaçamento adequado em telas maiores */
+@media (min-width: 1200px) {
+  .hero-section {
+    padding: 4rem 0 5rem 0 !important;
+  }
+  
+  .hero-content {
+    padding: 2rem !important;
+  }
+}
+
+/* Ajustes para mobile */
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 2rem 0 4rem 0 !important;
+  }
+  
+  .hero-content {
+    padding: 1rem !important;
+  }
+  
+  .hero-buttons {
+    flex-direction: column !important;
+    gap: 1rem !important;
+  }
+  
+  .hero-buttons .btn {
+    width: 100% !important;
+    margin-bottom: 0.5rem !important;
+  }
 }
