@@ -1,6 +1,6 @@
 .login-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-strong) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -28,13 +28,13 @@
 .logo-container {
   width: 80px;
   height: 80px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, var(--primary-strong), var(--secondary-strong));
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 1.5rem;
-  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 10px 30px rgba(184, 134, 11, 0.35);
   animation: pulse 2s infinite;
 }
 
@@ -76,7 +76,7 @@
 }
 
 .input-group-text {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, var(--primary-strong), var(--secondary-strong));
   color: white;
   border: none;
   padding: 1rem 1.25rem;
@@ -108,14 +108,14 @@
 }
 
 .btn-login {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, var(--primary-strong), var(--secondary-strong));
   color: white;
   border: none;
   padding: 1rem;
   font-size: 1.1rem;
   font-weight: 600;
   border-radius: 12px;
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 8px 25px rgba(160, 82, 45, 0.35);
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
@@ -123,7 +123,7 @@
 
 .btn-login:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 12px 35px rgba(184, 134, 11, 0.45);
   color: white;
 }
 
@@ -149,14 +149,14 @@
 }
 
 .btn-link {
-  color: #667eea;
+  color: var(--primary-strong);
   text-decoration: none;
   font-weight: 600;
   transition: all 0.3s ease;
 }
 
 .btn-link:hover {
-  color: #764ba2;
+  color: var(--honey-color);
   transform: translateY(-1px);
 }
 

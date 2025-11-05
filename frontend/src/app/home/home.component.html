@@ -135,7 +135,7 @@
               </div>
               
               <div *ngIf="apiarios.length > 0" class="apiarios-grid">
-                <div *ngFor="let apiario of apiarios; track apiario.id" class="apiario-card">
+                <div *ngFor="let apiario of apiarios; trackBy: trackByApiario" class="apiario-card">
                   <div class="apiario-icon">
                     <i class="fas fa-map-marker-alt"></i>
                   </div>
@@ -149,7 +149,7 @@
                     </div>
                   </div>
                   <div class="apiario-actions">
-                    <button class="btn btn-outline-primary btn-sm" [routerLink]="['/apiarios', apiario.id]">
+                    <button class="btn btn-outline-primary btn-sm" [routerLink]="['/apiarios', apiario?.id]">
                       <i class="fas fa-eye"></i>
                     </button>
                   </div>
@@ -180,7 +180,7 @@
               </div>
               
               <div *ngIf="colmeias.length > 0" class="colmeias-list">
-                <div *ngFor="let colmeia of colmeias.slice(0, 5); track colmeia.id" class="colmeia-item">
+                <div *ngFor="let colmeia of colmeias.slice(0, 5); trackBy: trackByColmeia" class="colmeia-item">
                   <div class="colmeia-icon">
                     <i class="fas fa-bee"></i>
                   </div>

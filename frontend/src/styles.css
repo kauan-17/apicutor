@@ -6,7 +6,7 @@
   --success-color: #6b8e23;       /* Verde oliva - cor natural */
   --danger-color: #cd853f;        /* Marrom claro - cor de advertência */
   --warning-color: #daa520;       /* Dourado escuro - cor do mel maduro */
-  --info-color: #4682b4;          /* Azul aço - cor profissional */
+  --info-color: #a0522d;          /* Madeira - sem azul */
   --light-color: #faf0e6;         /* Linho claro - cor das roupas */
   --dark-color: #654321;          /* Marrom escuro - cor da madeira */
   --cream-color: #fff8dc;         /* Creme - cor das roupas de apicultor */
@@ -18,7 +18,7 @@
   --primary-strong: #b8860b;      /* Dourado forte - mel concentrado */
   --success-strong: #556b2f;       /* Verde oliva forte - natureza */
   --warning-strong: #b8860b;       /* Dourado escuro - mel maduro */
-  --info-strong: #36648b;          /* Azul aço forte - profissional */
+  --info-strong: #b8860b;          /* Dourado forte - mel concentrado */
   --secondary-strong: #654321;     /* Marrom escuro - madeira de colmeia */
 }
 
@@ -35,6 +35,28 @@ body {
   background: rgba(44, 62, 80, 0.95) !important;
   backdrop-filter: blur(10px);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Remover azul padrão do Bootstrap */
+.text-primary {
+  color: var(--honey-color) !important; /* mel */
+}
+
+.btn-outline-primary {
+  color: var(--primary-strong) !important; /* dourado forte */
+  border: 3px solid var(--primary-strong) !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  transition: all 0.3s ease;
+  font-weight: 600 !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.btn-outline-primary:hover {
+  background: linear-gradient(135deg, var(--primary-strong), var(--honey-color)) !important;
+  color: white !important;
+  border-color: transparent !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(184, 134, 11, 0.6);
 }
 
 .navbar-brand {
@@ -182,8 +204,8 @@ body {
 }
 
 .btn-info {
-  background: linear-gradient(135deg, var(--info-strong), #5dade2) !important;
-  box-shadow: 0 6px 20px rgba(41, 128, 185, 0.6) !important;
+  background: linear-gradient(135deg, var(--secondary-strong), var(--primary-color)) !important;
+  box-shadow: 0 6px 20px rgba(160, 82, 45, 0.6) !important; /* madeira */
   border: none !important;
   font-weight: 600 !important;
   text-shadow: 0 1px 2px rgba(0,0,0,0.2) !important;
@@ -192,8 +214,8 @@ body {
 
 .btn-info:hover {
   transform: translateY(-3px) !important;
-  box-shadow: 0 8px 25px rgba(41, 128, 185, 0.8) !important;
-  background: linear-gradient(135deg, #2980b9, #3498db) !important;
+  box-shadow: 0 8px 25px rgba(184, 134, 11, 0.8) !important; /* mel forte */
+  background: linear-gradient(135deg, var(--primary-strong), var(--honey-color)) !important;
 }
 
 .btn-secondary {
@@ -388,8 +410,8 @@ body {
 }
 
 .btn-outline-info {
-  color: var(--info-strong) !important;
-  border: 3px solid var(--info-strong) !important;
+  color: var(--secondary-strong) !important;
+  border: 3px solid var(--secondary-strong) !important;
   background: rgba(255, 255, 255, 0.9) !important;
   transition: all 0.3s ease;
   font-weight: 600 !important;
@@ -397,11 +419,11 @@ body {
 }
 
 .btn-outline-info:hover {
-  background: linear-gradient(135deg, var(--info-strong), #5dade2) !important;
+  background: linear-gradient(135deg, var(--secondary-strong), var(--primary-color)) !important;
   color: white !important;
   border-color: transparent !important;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(41, 128, 185, 0.6);
+  box-shadow: 0 6px 20px rgba(184, 134, 11, 0.6);
 }
 
 .btn-outline-secondary {
@@ -559,7 +581,7 @@ body {
 }
 
 .alert-info {
-  background: linear-gradient(135deg, var(--info-color), #5dade2);
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-strong));
   color: white;
 }
 

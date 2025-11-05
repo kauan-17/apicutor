@@ -57,4 +57,13 @@ export class HomeComponent implements OnInit {
   getActiveColmeiasCount(): number {
     return this.colmeias.filter(c => c.status === 'ATIVA').length;
   }
+
+  // trackBy helpers para *ngFor
+  trackByApiario(_index: number, apiario: Apiario | undefined): number | undefined {
+    return apiario?.id;
+  }
+
+  trackByColmeia(_index: number, colmeia: Colmeia | undefined): number | undefined {
+    return colmeia?.id;
+  }
 }

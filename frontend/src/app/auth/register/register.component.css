@@ -6,7 +6,7 @@
   align-items: center;
   justify-content: center;
   padding: 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-strong) 100%);
   position: relative;
   overflow: hidden;
 }
@@ -95,7 +95,7 @@
 
 .form-control:focus {
   background: #ffffff;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 0 0 3px rgba(184, 134, 11, 0.35);
   outline: none;
 }
 
@@ -130,14 +130,14 @@
 }
 
 .btn-register {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--honey-color) 0%, var(--primary-strong) 100%);
   border: none;
   color: white;
   padding: 12px 24px;
   font-size: 1.1rem;
   font-weight: 600;
   border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 15px rgba(184, 134, 11, 0.4);
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
@@ -145,7 +145,7 @@
 
 .btn-register:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+  box-shadow: 0 8px 25px rgba(184, 134, 11, 0.6);
 }
 
 .btn-register:active {
@@ -159,14 +159,14 @@
 }
 
 .btn-link {
-  color: #667eea;
+  color: var(--primary-color);
   text-decoration: none;
   font-weight: 600;
   transition: all 0.3s ease;
 }
 
 .btn-link:hover {
-  color: #764ba2;
+  color: var(--secondary-strong);
   text-decoration: underline;
 }
 
@@ -345,7 +345,7 @@
   
   .form-control:focus {
     background: rgba(255, 255, 255, 0.15);
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+    box-shadow: 0 0 0 3px rgba(184, 134, 11, 0.25);
   }
   
   .input-group-text {
@@ -363,7 +363,7 @@
 .form-control:focus,
 .btn:focus,
 .btn-register:focus {
-  outline: 2px solid #667eea;
+  outline: 2px solid var(--honey-color);
   outline-offset: 2px;
 }
 

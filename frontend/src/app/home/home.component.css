@@ -17,7 +17,7 @@
 }
 
 .display-4 {
-  color: #3a7ca5;
+  color: var(--secondary-color) !important; /* sem azul */
   margin-bottom: 0.5rem;
 }
 
@@ -28,19 +28,52 @@
 
 /* Estilos específicos para Home Component */
 
-/* Hero Section - Melhorando espaçamento */
+/* Hero Section */
 .hero-section {
-  padding: 3rem 0 4rem 0 !important;
-  margin-bottom: 1.5rem !important;
+  background: linear-gradient(135deg, var(--honey-color) 0%, var(--earth-brown) 100%);
+  color: white;
+  padding: 0rem 0 0rem !important; /* colado na navbar */
+  text-align: center;
+  margin-bottom: 0rem !important; /* colado */
+  position: relative;
+  overflow: hidden;
+}
+
+/* SOBRESCREVER BOOTSTRAP - colar tudo */
+.hero-section .container,
+.hero-section .row,
+.hero-section .col-lg-6 {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.hero-section h1.hero-title {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="hex" x="0" y="0" width="20" height="17.32" patternUnits="userSpaceOnUse"><polygon points="10,0 20,5 20,15 10,20 0,15 0,5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23hex)"/></svg>');
+  opacity: 0.3;
 }
 
 .hero-content {
-  padding: 2rem !important;
+  padding: 0rem 0 0 0 !important; /* colado internamente */
   margin-bottom: 2rem !important;
+  margin-top: 0rem !important; /* colado no topo */
 }
 
 .hero-title {
-  margin-bottom: 1.5rem !important;
+  margin-bottom: 0.5rem !important;
+  margin-top: 0rem !important; /* colado no topo */
   line-height: 1.3 !important;
 }
 
@@ -50,7 +83,7 @@
 }
 
 .hero-buttons {
-  margin-top: 2rem !important;
+  margin-top: 0rem !important; /* colado */
   gap: 1.5rem !important;
 }
 
@@ -71,7 +104,7 @@
 
 /* Melhorando espaçamento entre seções */
 .dashboard-section {
-  padding-top: 2rem !important;
+  padding-top: 0rem !important; /* colado */
 }
 
 .content-card {
@@ -119,22 +152,25 @@
 /* Garantindo espaçamento adequado em telas maiores */
 @media (min-width: 1200px) {
   .hero-section {
-    padding: 4rem 0 5rem 0 !important;
+    padding: 0rem 0 3rem 0 !important;
   }
   
   .hero-content {
-    padding: 2rem !important;
+    padding-top: 0 !important;
+    padding-right: 0 !important;
+    padding-bottom: 0 !important;
+    padding-left: 0 !important;
   }
 }
 
 /* Ajustes para mobile */
 @media (max-width: 768px) {
   .hero-section {
-    padding: 2rem 0 4rem 0 !important;
+    padding: 0rem 0 2rem 0 !important;
   }
   
   .hero-content {
-    padding: 1rem !important;
+    padding: 0 !important;
   }
   
   .hero-buttons {
