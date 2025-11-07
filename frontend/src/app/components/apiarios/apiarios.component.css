@@ -1,7 +1,36 @@
-.container h2 {
+.apiario-page h2 {
   color: var(--secondary-color);
 }
-.alert {
-  background: linear-gradient(135deg, var(--honey-color), var(--primary-strong));
-  color: #fff;
+
+.actions .btn-primary {
+  background: var(--primary-strong);
+  border-color: var(--primary-strong);
+}
+
+.card.stat .label {
+  font-size: 0.875rem;
+  color: #6c757d;
+}
+.card.stat .value {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.map-placeholder {
+  background: repeating-linear-gradient(45deg, #f7f2e8, #f7f2e8 10px, #f1e7d6 10px, #f1e7d6 20px);
+  border: 1px dashed #d2b48c;
+  border-radius: 8px;
+  padding: 24px;
+  text-align: center;
+  color: #8a6d3b;
+}
+
+.badge.bg-warning {
+  background-color: #ffc107 !important;
+}
+.badge.bg-danger {
+  background-color: #dc3545 !important;
+}
+.badge.bg-info {
+  background-color: #0dcaf0 !important;
 }

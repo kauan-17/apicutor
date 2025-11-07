@@ -1,0 +1,56 @@
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Novo Apiário</h2>
+    <a routerLink="/dashboard" class="btn btn-outline-secondary">Voltar ao Dashboard</a>
+  </div>
+
+  <div *ngIf="feedback" class="alert alert-success" role="alert">{{ feedback }}</div>
+
+  <div class="card">
+    <div class="card-body">
+      <form (ngSubmit)="salvar()">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Nome do Apiário</label>
+            <input type="text" class="form-control" [(ngModel)]="nome" name="nome" required />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Proprietário</label>
+            <input type="text" class="form-control" [(ngModel)]="proprietario" name="proprietario" />
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Endereço</label>
+            <input type="text" class="form-control" [(ngModel)]="endereco" name="endereco" />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Cidade</label>
+            <input type="text" class="form-control" [(ngModel)]="cidade" name="cidade" />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Estado</label>
+            <input type="text" class="form-control" [(ngModel)]="estado" name="estado" />
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Latitude</label>
+            <input type="number" step="any" class="form-control" [(ngModel)]="latitude" name="latitude" />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Longitude</label>
+            <input type="number" step="any" class="form-control" [(ngModel)]="longitude" name="longitude" />
+          </div>
+          <div class="col-12">
+            <label class="form-label">Descrição</label>
+            <textarea class="form-control" rows="3" [(ngModel)]="descricao" name="descricao" placeholder="Observações e detalhes do apiário"></textarea>
+          </div>
+        </div>
+
+        <div class="mt-4 d-flex gap-2">
+          <button type="submit" class="btn btn-primary" [disabled]="saving">Salvar</button>
+          <button type="button" class="btn btn-outline-secondary" (click)="cancelar()">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

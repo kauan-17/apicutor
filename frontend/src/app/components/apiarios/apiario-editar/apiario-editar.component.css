@@ -1,0 +1,10 @@
+h2 {
+  color: var(--secondary-color);
+}
+.card {
+  border-radius: 8px;
+}
+.btn-primary {
+  background-color: var(--primary-strong);
+  border-color: var(--primary-strong);
+}

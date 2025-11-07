@@ -15,6 +15,9 @@ import { ApiariosComponent } from './components/apiarios/apiarios.component';
 import { ColmeiasComponent } from './components/colmeias/colmeias.component';
 import { ProducaoComponent } from './components/producao/producao.component';
 import { RelatoriosComponent } from './components/relatorios/relatorios.component';
+import { InspecaoNovaComponent } from './components/inspecoes/inspecao-nova/inspecao-nova.component';
+import { ApiarioNovoComponent } from './components/apiarios/apiario-novo/apiario-novo.component';
+import { ApiarioEditarComponent } from './components/apiarios/apiario-editar/apiario-editar.component';
 
 @NgModule({
   declarations: [
@@ -29,6 +32,9 @@ import { RelatoriosComponent } from './components/relatorios/relatorios.componen
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
+    InspecaoNovaComponent,
+    ApiarioNovoComponent,
+    ApiarioEditarComponent,
     ApiariosComponent,
     ColmeiasComponent,
     ProducaoComponent,
@@ -38,7 +44,10 @@ import { RelatoriosComponent } from './components/relatorios/relatorios.componen
       { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
       { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
       { path: 'apiarios', component: ApiariosComponent, canActivate: [AuthGuard] },
+      { path: 'apiarios/novo', component: ApiarioNovoComponent, canActivate: [AuthGuard] },
       { path: 'apiarios/:id', component: ApiariosComponent, canActivate: [AuthGuard] },
+      { path: 'apiarios/:id/editar', component: ApiarioEditarComponent, canActivate: [AuthGuard] },
+      { path: 'apiarios/:id/inspecao/nova', component: InspecaoNovaComponent, canActivate: [AuthGuard] },
       { path: 'colmeias', component: ColmeiasComponent, canActivate: [AuthGuard] },
       { path: 'producao', component: ProducaoComponent, canActivate: [AuthGuard] },
       { path: 'relatorios', component: RelatoriosComponent, canActivate: [AuthGuard] },

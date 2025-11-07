@@ -1,0 +1,35 @@
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Nova Inspeção — Apiário #{{ apiarioId }}</h2>
+    <a [routerLink]="['/apiarios', apiarioId]" class="btn btn-outline-secondary">Voltar</a>
+  </div>
+
+  <div *ngIf="feedback" class="alert alert-success" role="alert">{{ feedback }}</div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Data</label>
+          <input type="date" class="form-control" [(ngModel)]="data" />
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Responsável</label>
+          <input type="text" class="form-control" [(ngModel)]="responsavel" placeholder="Nome" />
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Colmeias verificadas</label>
+          <input type="number" class="form-control" [(ngModel)]="colmeiasVerificadas" min="0" />
+        </div>
+        <div class="col-12">
+          <label class="form-label">Observações</label>
+          <textarea class="form-control" rows="4" [(ngModel)]="observacoes" placeholder="Detalhes da inspeção"></textarea>
+        </div>
+      </div>
+      <div class="mt-3 d-flex gap-2">
+        <button class="btn btn-primary" (click)="salvar()">Salvar</button>
+        <button class="btn btn-light" (click)="cancelar()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
