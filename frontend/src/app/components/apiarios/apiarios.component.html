@@ -7,11 +7,16 @@
       </p>
     </div>
     <div class="actions">
-      <a routerLink="/dashboard" class="btn btn-outline-secondary me-2">Voltar ao Dashboard</a>
-      <a *ngIf="!selectedId" routerLink="/apiarios/novo" class="btn btn-success me-2">Novo Apiário</a>
-      <a *ngIf="selectedId" routerLink="/apiarios" class="btn btn-primary me-2">Escolher Outro Apiário</a>
-      <a class="btn btn-warning me-2" *ngIf="selectedId" [routerLink]="['/apiarios', selectedId, 'editar']">Editar</a>
-      <a class="btn btn-primary" *ngIf="selectedId" [routerLink]="['/apiarios', selectedId, 'inspecao', 'nova']">Nova Inspeção</a>
+      <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="btn btn-secondary me-2">Voltar ao Dashboard</a>
+      <a *appHasRoleAny="['ROLE_APICULTOR','ROLE_ADMIN']" routerLink="/apiarios/novo" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="btn btn-primary me-2">Novo Apiário</a>
+      <a *ngIf="selectedId" routerLink="/apiarios" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="btn btn-success me-2">Escolher Outro Apiário</a>
+      <ng-container *ngIf="selectedId">
+        <a class="btn btn-warning me-2" routerLinkActive="active" *appHasRoleAny="['ROLE_APICULTOR','ROLE_ADMIN']" [routerLink]="['/apiarios', selectedId, 'editar']">Editar</a>
+      </ng-container>
+      <ng-container *ngIf="selectedId">
+        <a class="btn btn-info" routerLinkActive="active" *appHasRoleAny="['ROLE_APICULTOR','ROLE_FUNCIONARIO','ROLE_ADMIN']" [routerLink]="['/apiarios', selectedId, 'inspecao', 'nova']">Nova Inspeção</a>
+      </ng-container>
+      <button class="btn btn-danger ms-2" *ngIf="selectedId && authService.hasRole('ROLE_ADMIN')" (click)="excluirApiario()">Excluir</button>
     </div>
   </div>
 

@@ -1,4 +1,7 @@
 <div class="container-fluid">
+  <div *ngIf="erro" class="alert alert-danger mt-3" role="alert">
+    {{ erro }}
+  </div>
   <div class="row">
     <div class="col-12">
       <div class="welcome-header text-center mb-5 fade-in-up">

@@ -34,3 +34,52 @@
 .badge.bg-info {
   background-color: #0dcaf0 !important;
 }
+
+/* Paleta de cores temática do apiário */
+.btn-apiario-honey {
+  background-color: transparent;
+  border: 1px solid #FFB300;
+  color: #FFB300;
+}
+.btn-apiario-honey:hover,
+.btn-apiario-honey:focus,
+.btn-apiario-honey:active,
+.btn-apiario-honey.active,
+.btn-apiario-honey:focus-visible {
+  background-color: transparent;
+  border-color: #FFA000;
+  color: #FFA000;
+  box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.25);
+}
+
+.btn-apiario-forest {
+  background-color: transparent;
+  border: 1px solid #43A047;
+  color: #43A047;
+}
+.btn-apiario-forest:hover,
+.btn-apiario-forest:focus,
+.btn-apiario-forest:active,
+.btn-apiario-forest.active,
+.btn-apiario-forest:focus-visible {
+  background-color: transparent;
+  border-color: #388E3C;
+  color: #388E3C;
+  box-shadow: 0 0 0 2px rgba(67, 160, 71, 0.25);
+}
+
+.btn-apiario-wax-outline {
+  background-color: transparent;
+  border: 1px solid #6D4C41;
+  color: #6D4C41;
+}
+.btn-apiario-wax-outline:hover,
+.btn-apiario-wax-outline:focus,
+.btn-apiario-wax-outline:active,
+.btn-apiario-wax-outline.active,
+.btn-apiario-wax-outline:focus-visible {
+  background-color: transparent;
+  border-color: #5D4037;
+  color: #5D4037;
+  box-shadow: 0 0 0 2px rgba(109, 76, 65, 0.25);
+}

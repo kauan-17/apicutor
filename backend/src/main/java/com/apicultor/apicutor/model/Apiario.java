@@ -1,6 +1,7 @@
 package com.apicultor.apicutor.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -36,5 +37,6 @@ public class Apiario {
     private Usuario proprietario;
     
     @OneToMany(mappedBy = "apiario", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Colmeia> colmeias = new ArrayList<>();
 }

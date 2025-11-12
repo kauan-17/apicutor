@@ -37,4 +37,8 @@ public class Usuario {
     private Set<String> roles = new HashSet<>();
     
     private boolean ativo = true;
+
+    @ManyToOne
+    @JoinColumn(name = "apiario_vinculado_id")
+    private Apiario apiarioVinculado;
 }

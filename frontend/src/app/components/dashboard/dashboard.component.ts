@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../auth/auth.service';
-import { ApiarioService } from '../../services/apiario.service';
+import { ApiarioService, Apiario } from '../../services/apiario.service';
 import { ColmeiaService } from '../../services/colmeia.service';
 
 @Component({
@@ -18,6 +18,7 @@ export class DashboardComponent implements OnInit {
   };
   
   loading = true;
+  erro?: string;
   userName = '';
 
   constructor(
@@ -33,15 +34,16 @@ export class DashboardComponent implements OnInit {
 
   loadDashboardData(): void {
     this.loading = true;
+    this.erro = undefined;
     
     // Carregar dados do dashboard
     this.apiarioService.getApiarios().subscribe({
-      next: (apiarios) => {
+      next: (apiarios: Apiario[]) => {
         this.stats.totalApiarios = apiarios.length;
         
         // Contar colmeias de todos os apiários
         let totalColmeias = 0;
-        apiarios.forEach(apiario => {
+        apiarios.forEach((apiario: Apiario) => {
           totalColmeias += apiario.colmeias?.length || 0;
         });
         this.stats.totalColmeias = totalColmeias;
@@ -52,8 +54,9 @@ export class DashboardComponent implements OnInit {
         
         this.loading = false;
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Erro ao carregar dados do dashboard:', error);
+        this.erro = 'Falha ao carregar dados. Verifique sua sessão e o servidor.';
         this.loading = false;
       }
     });

@@ -6,9 +6,11 @@ com\apicultor\apicutor\model\Rainha.class
 com\apicultor\apicutor\security\SecurityConfig.class
 com\apicultor\apicutor\service\UserDetailsServiceImpl.class
 com\apicultor\apicutor\model\Inspecao.class
+com\apicultor\apicutor\service\AuditService.class
 com\apicultor\apicutor\controller\AuthController$RegisterRequest.class
 com\apicultor\apicutor\model\Colmeia.class
 com\apicultor\apicutor\controller\ColmeiaController.class
+com\apicultor\apicutor\controller\FuncionarioController.class
 com\apicultor\apicutor\model\Producao$TipoProduto.class
 com\apicultor\apicutor\model\Producao.class
 com\apicultor\apicutor\controller\AuthController$LoginRequest.class
@@ -16,6 +18,7 @@ com\apicultor\apicutor\controller\AuthController.class
 com\apicultor\apicutor\security\JwtTokenProvider.class
 com\apicultor\apicutor\repository\ApiarioRepository.class
 com\apicultor\apicutor\model\Producao$UnidadeMedida.class
+com\apicultor\apicutor\controller\FuncionarioController$FuncionarioRequest.class
 com\apicultor\apicutor\model\Usuario.class
 com\apicultor\apicutor\model\Colmeia$TipoColmeia.class
 com\apicultor\apicutor\repository\ColmeiaRepository.class
@@ -23,3 +26,4 @@ com\apicultor\apicutor\ApicutorApplication.class
 com\apicultor\apicutor\model\Rainha$Origem.class
 com\apicultor\apicutor\config\CorsConfig.class
 com\apicultor\apicutor\model\Apiario.class
+com\apicultor\apicutor\controller\AdminUserController.class

@@ -1,6 +1,7 @@
 package com.apicultor.apicutor.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,6 +21,7 @@ public class Inspecao {
     
     @ManyToOne
     @JoinColumn(name = "colmeia_id", nullable = false)
+    @JsonBackReference
     private Colmeia colmeia;
     
     private LocalDateTime dataHora;

@@ -1,6 +1,8 @@
 package com.apicultor.apicutor.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,16 +32,20 @@ public class Colmeia {
     
     @ManyToOne
     @JoinColumn(name = "apiario_id", nullable = false)
+    @JsonBackReference
     private Apiario apiario;
     
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "rainha_id")
+    @JsonManagedReference
     private Rainha rainha;
     
     @OneToMany(mappedBy = "colmeia", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Inspecao> inspecoes = new ArrayList<>();
     
     @OneToMany(mappedBy = "colmeia", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Producao> producoes = new ArrayList<>();
     
     private String observacoes;

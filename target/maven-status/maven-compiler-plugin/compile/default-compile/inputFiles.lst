@@ -1,4 +1,5 @@
 C:\Users\ItShare\Documents\trae_projects\apicutor\backend\src\main\java\com\apicultor\apicutor\controller\ColmeiaController.java
+C:\Users\ItShare\Documents\trae_projects\apicutor\backend\src\main\java\com\apicultor\apicutor\controller\FuncionarioController.java
 C:\Users\ItShare\Documents\trae_projects\apicutor\backend\src\main\java\com\apicultor\apicutor\repository\UsuarioRepository.java
 C:\Users\ItShare\Documents\trae_projects\apicutor\backend\src\main\java\com\apicultor\apicutor\model\Colmeia.java
 C:\Users\ItShare\Documents\trae_projects\apicutor\backend\src\main\java\com\apicultor\apicutor\repository\ColmeiaRepository.java
@@ -7,7 +8,9 @@ C:\Users\ItShare\Documents\trae_projects\apicutor\backend\src\main\java\com\apic
 C:\Users\ItShare\Documents\trae_projects\apicutor\backend\src\main\java\com\apicultor\apicutor\model\Producao.java
 C:\Users\ItShare\Documents\trae_projects\apicutor\backend\src\main\java\com\apicultor\apicutor\ApicutorApplication.java
 C:\Users\ItShare\Documents\trae_projects\apicutor\backend\src\main\java\com\apicultor\apicutor\security\JwtAuthenticationFilter.java
+C:\Users\ItShare\Documents\trae_projects\apicutor\backend\src\main\java\com\apicultor\apicutor\controller\AdminUserController.java
 C:\Users\ItShare\Documents\trae_projects\apicutor\backend\src\main\java\com\apicultor\apicutor\model\Apiario.java
+C:\Users\ItShare\Documents\trae_projects\apicutor\backend\src\main\java\com\apicultor\apicutor\service\AuditService.java
 C:\Users\ItShare\Documents\trae_projects\apicutor\backend\src\main\java\com\apicultor\apicutor\model\Rainha.java
 C:\Users\ItShare\Documents\trae_projects\apicutor\backend\src\main\java\com\apicultor\apicutor\controller\ApiarioController.java
 C:\Users\ItShare\Documents\trae_projects\apicutor\backend\src\main\java\com\apicultor\apicutor\model\Inspecao.java

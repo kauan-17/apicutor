@@ -1,7 +1,7 @@
 <div class="container py-4">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="mb-0">Nova Inspeção — Apiário #{{ apiarioId }}</h2>
-    <a [routerLink]="['/apiarios', apiarioId]" class="btn btn-outline-secondary">Voltar</a>
+<a [routerLink]="['/apiarios', apiarioId]" class="btn btn-secondary">Voltar</a>
   </div>
 
   <div *ngIf="feedback" class="alert alert-success" role="alert">{{ feedback }}</div>

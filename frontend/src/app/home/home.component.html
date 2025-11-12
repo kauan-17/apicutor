@@ -121,7 +121,7 @@
               <h4 class="card-title">
                 <i class="fas fa-map-marked-alt me-2"></i>Meus Apiários
               </h4>
-              <button routerLink="/apiarios" class="btn btn-outline-primary btn-sm">
+              <button *appHasRoleAny="['ROLE_APICULTOR','ROLE_ADMIN']" routerLink="/apiarios/novo" class="btn btn-outline-primary btn-sm">
                 <i class="fas fa-plus me-1"></i>Novo Apiário
               </button>
             </div>
@@ -129,7 +129,7 @@
               <div *ngIf="apiarios.length === 0" class="empty-state">
                 <i class="fas fa-map-marked-alt empty-icon"></i>
                 <p class="empty-text">Nenhum apiário cadastrado ainda</p>
-                <button routerLink="/apiarios/novo" class="btn btn-primary">
+                <button *appHasRoleAny="['ROLE_APICULTOR','ROLE_ADMIN']" routerLink="/apiarios/novo" class="btn btn-primary">
                   <i class="fas fa-plus me-2"></i>Adicionar Primeiro Apiário
                 </button>
               </div>
@@ -199,7 +199,7 @@
               </div>
               
               <div *ngIf="colmeias.length > 5" class="text-center mt-3">
-                <button routerLink="/colmeias" class="btn btn-outline-secondary btn-sm">
+<button routerLink="/colmeias" class="btn btn-secondary btn-sm">
                   Ver todas as colmeias
                 </button>
               </div>
@@ -217,7 +217,7 @@
             </h4>
             <div class="row">
               <div class="col-md-3 col-sm-6 mb-3">
-                <button routerLink="/apiarios" class="btn btn-outline-primary btn-action w-100">
+                <button *appHasRoleAny="['ROLE_APICULTOR','ROLE_ADMIN']" routerLink="/apiarios" class="btn btn-outline-primary btn-action w-100">
                   <i class="fas fa-map-marker-alt d-block mb-2"></i>
                   <span>Adicionar Apiário</span>
                 </button>

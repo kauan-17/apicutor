@@ -31,6 +31,10 @@ public class AuthController {
     private final JwtTokenProvider tokenProvider;
     private final AuditService auditService;
 
+    private static final java.util.Set<String> ALLOWED_ROLES = java.util.Set.of(
+            "ROLE_ADMIN", "ROLE_APICULTOR", "ROLE_FUNCIONARIO"
+    );
+
     public AuthController(AuthenticationManager authenticationManager, UsuarioRepository usuarioRepository,
                           PasswordEncoder passwordEncoder, JwtTokenProvider tokenProvider, AuditService auditService) {
         this.authenticationManager = authenticationManager;
@@ -68,6 +72,7 @@ public class AuthController {
             response.put("tokenType", "Bearer");
             response.put("username", usuario.getUsername());
             response.put("email", usuario.getEmail());
+            response.put("roles", usuario.getRoles());
             
             return ResponseEntity.ok(response);
             
@@ -97,7 +102,14 @@ public class AuthController {
         usuario.setUsername(registerRequest.getUsername());
         usuario.setEmail(registerRequest.getEmail());
         usuario.setSenha(passwordEncoder.encode(registerRequest.getPassword()));
-        usuario.setRoles(Collections.singleton("ROLE_USER"));
+        String requestedRole = registerRequest.getRole();
+        if (requestedRole == null || requestedRole.trim().isEmpty()) {
+            requestedRole = "ROLE_APICULTOR"; // padrão
+        }
+        if (!ALLOWED_ROLES.contains(requestedRole)) {
+            return ResponseEntity.badRequest().body("Role inválida: " + requestedRole);
+        }
+        usuario.setRoles(java.util.Collections.singleton(requestedRole));
 
         usuarioRepository.save(usuario);
 
@@ -134,6 +146,8 @@ public class AuthController {
         private String username;
         private String email;
         private String password;
+        private String role;
+        // Opcionalmente poderíamos aceitar roles aqui, mas manteremos ROLE_USER por segurança.
 
         public String getNome() {
             return nome;
@@ -165,6 +179,14 @@ public class AuthController {
 
         public void setPassword(String password) {
             this.password = password;
+        }
+
+        public String getRole() {
+            return role;
+        }
+
+        public void setRole(String role) {
+            this.role = role;
         }
     }
 }

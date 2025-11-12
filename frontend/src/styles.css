@@ -443,6 +443,8 @@ body {
   box-shadow: 0 6px 20px rgba(52, 73, 94, 0.6);
 }
 
+/* Removida a padronização transparente para retomar botões coloridos em todo o sistema */
+
 /* Formulários */
 .form-control {
   border-radius: 10px;

@@ -150,6 +150,23 @@ mvn clean install
 mvn spring-boot:run
 ```
 
+#### Executar em modo desenvolvimento (sem PostgreSQL)
+Para rodar rapidamente sem precisar do PostgreSQL local, use o perfil `dev`, que habilita um banco H2 em memória:
+
+```bash
+# A partir da raiz do projeto
+mvn spring-boot:run -Dspring-boot.run.profiles=dev
+
+# Ou dentro da pasta backend
+cd backend
+mvn spring-boot:run -Dspring-boot.run.profiles=dev
+```
+
+Com o perfil `dev`:
+- Banco H2 em memória é usado automaticamente.
+- `spring.jpa.hibernate.ddl-auto=update` cria/atualiza as tabelas ao iniciar.
+- Porta permanece `8080` e CORS já permite `http://localhost:4200`.
+
 ### Frontend
 ```bash
 # Acesse a pasta frontend

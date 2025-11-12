@@ -3,31 +3,57 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
-@Injectable({
-  providedIn: 'root'
-})
+export interface Apiario {
+  id: number;
+  nome: string;
+  colmeias?: any[];
+}
+
+@Injectable({ providedIn: 'root' })
 export class ApiarioService {
-  private apiUrl = `${environment.apiUrl}/apiarios`;
+  private baseUrl = `${environment.apiUrl}/apiarios`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
-  getApiarios(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl);
+  getAll(): Observable<Apiario[]> {
+    return this.http.get<Apiario[]>(this.baseUrl);
   }
 
-  getApiario(id: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/${id}`);
+  // Compat: mantem assinatura antiga usada em componentes existentes
+  getApiarios(): Observable<Apiario[]> {
+    return this.getAll();
   }
 
-  createApiario(apiario: any): Observable<any> {
-    return this.http.post<any>(this.apiUrl, apiario);
+  getById(id: number): Observable<Apiario> {
+    return this.http.get<Apiario>(`${this.baseUrl}/${id}`);
   }
 
-  updateApiario(id: number, apiario: any): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/${id}`, apiario);
+  // Compat: nomes anteriores possivelmente usados em componentes
+  getApiario(id: number): Observable<Apiario> {
+    return this.getById(id);
+  }
+
+  create(payload: Partial<Apiario>): Observable<Apiario> {
+    return this.http.post<Apiario>(this.baseUrl, payload);
+  }
+
+  createApiario(payload: Partial<Apiario>): Observable<Apiario> {
+    return this.create(payload);
+  }
+
+  update(id: number, payload: Partial<Apiario>): Observable<Apiario> {
+    return this.http.put<Apiario>(`${this.baseUrl}/${id}`, payload);
+  }
+
+  updateApiario(id: number, payload: Partial<Apiario>): Observable<Apiario> {
+    return this.update(id, payload);
+  }
+
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
 
   deleteApiario(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.delete(id);
   }
 }

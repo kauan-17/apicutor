@@ -1,6 +1,7 @@
 package com.apicultor.apicutor.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,6 +31,7 @@ public class Rainha {
     private Origem origem;
     
     @OneToOne(mappedBy = "rainha")
+    @JsonBackReference
     private Colmeia colmeia;
     
     private String observacoes;

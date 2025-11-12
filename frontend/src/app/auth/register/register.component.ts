@@ -27,7 +27,8 @@ export class RegisterComponent {
       username: ['', [Validators.required, Validators.minLength(4)]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', Validators.required]
+      confirmPassword: ['', Validators.required],
+      role: ['APICULTOR', Validators.required]
     }, {
       validators: this.passwordMatchValidator
     });
@@ -64,10 +65,13 @@ export class RegisterComponent {
 
     this.loading = true;
 
-    const { nome, sobrenome, username, email, password } = this.registerForm.value;
+    const { nome, sobrenome, username, email, password, role } = this.registerForm.value;
     const fullName = `${nome} ${sobrenome}`.trim();
+    let backendRole = 'ROLE_APICULTOR';
+    if (role === 'ADMIN') backendRole = 'ROLE_ADMIN';
+    else if (role === 'FUNCIONARIO') backendRole = 'ROLE_FUNCIONARIO';
 
-    this.authService.register({ nome: fullName, username, email, password }).subscribe({
+    this.authService.register({ nome: fullName, username, email, password, role: backendRole }).subscribe({
       next: () => {
         this.success = true;
         setTimeout(() => {
