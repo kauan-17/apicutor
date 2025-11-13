@@ -38,7 +38,11 @@ public class Usuario {
     
     private boolean ativo = true;
 
-    @ManyToOne
-    @JoinColumn(name = "apiario_vinculado_id")
-    private Apiario apiarioVinculado;
+    @ManyToMany
+    @JoinTable(
+        name = "usuario_apiarios",
+        joinColumns = @JoinColumn(name = "usuario_id"),
+        inverseJoinColumns = @JoinColumn(name = "apiario_id")
+    )
+    private Set<Apiario> apiariosVinculados = new HashSet<>();
 }

@@ -58,7 +58,7 @@ public class FuncionarioController {
         funcionario.setEmail(request.getEmail());
         funcionario.setSenha(passwordEncoder.encode(request.getPassword()));
         funcionario.setRoles(java.util.Collections.singleton("ROLE_FUNCIONARIO"));
-        funcionario.setApiarioVinculado(apiario);
+        funcionario.getApiariosVinculados().add(apiario);
 
         usuarioRepository.save(funcionario);
 
@@ -85,7 +85,128 @@ public class FuncionarioController {
             return ResponseEntity.status(403).body(Map.of("error", "Você não é proprietário deste apiário"));
         }
 
-        return ResponseEntity.ok(usuarioRepository.findByApiarioVinculado_Id(apiarioId));
+        return ResponseEntity.ok(usuarioRepository.findByApiariosVinculados_Id(apiarioId));
+    }
+
+    @GetMapping("/me")
+    @PreAuthorize("hasAnyRole('APICULTOR','FUNCIONARIO','ADMIN')")
+    public ResponseEntity<?> getMe() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        Usuario usuario = usuarioRepository.findByUsername(username).orElseThrow();
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("id", usuario.getId());
+        body.put("username", usuario.getUsername());
+        body.put("nome", usuario.getNome());
+        body.put("email", usuario.getEmail());
+        body.put("roles", usuario.getRoles());
+        java.util.Set<Apiario> vinculos = usuario.getApiariosVinculados();
+        if (vinculos != null && !vinculos.isEmpty()) {
+            java.util.List<Long> ids = vinculos.stream().map(Apiario::getId).toList();
+            body.put("apiariosIds", ids);
+            java.util.List<Map<String, Object>> apiariosInfo = vinculos.stream().map(a -> {
+                Map<String, Object> info = new HashMap<>();
+                info.put("id", a.getId());
+                info.put("nome", a.getNome());
+                info.put("localizacao", a.getLocalizacao());
+                return info;
+            }).toList();
+            body.put("apiarios", apiariosInfo);
+            // Compatibilidade com clientes que esperam um único apiário
+            body.put("apiarioId", ids.get(0));
+            body.put("apiario", apiariosInfo.get(0));
+        }
+        return ResponseEntity.ok(body);
+    }
+
+    @PutMapping("/{funcionarioId}/realocar")
+    @PreAuthorize("hasAnyRole('APICULTOR','ADMIN')")
+    public ResponseEntity<?> realocarFuncionario(@PathVariable Long funcionarioId, @RequestBody RealocarRequest request) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        Usuario solicitante = usuarioRepository.findByUsername(username).orElseThrow();
+
+        Optional<Usuario> funcionarioOpt = usuarioRepository.findById(funcionarioId);
+        if (funcionarioOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        Usuario funcionario = funcionarioOpt.get();
+
+        Optional<Apiario> destinoOpt = apiarioRepository.findById(request.getApiarioId());
+        if (destinoOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Apiário de destino inválido"));
+        }
+        Apiario destino = destinoOpt.get();
+
+        boolean isAdmin = solicitante.getRoles() != null && solicitante.getRoles().contains("ROLE_ADMIN");
+        if (!isAdmin && !destino.getProprietario().getId().equals(solicitante.getId())) {
+            return ResponseEntity.status(403).body(Map.of("error", "Você não é proprietário do apiário de destino"));
+        }
+
+        // Opcional: garantir que o funcionário atual pertence a algum apiário do solicitante
+        if (!isAdmin) {
+            boolean pertenceAoSolicitante = funcionario.getApiariosVinculados().stream()
+                    .anyMatch(a -> a.getProprietario() != null && a.getProprietario().getId().equals(solicitante.getId()));
+            if (!pertenceAoSolicitante && !funcionario.getApiariosVinculados().isEmpty()) {
+                return ResponseEntity.status(403).body(Map.of("error", "Funcionário não pertence a um apiário seu"));
+            }
+        }
+
+        funcionario.getApiariosVinculados().clear();
+        funcionario.getApiariosVinculados().add(destino);
+        usuarioRepository.save(funcionario);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Funcionário realocado com sucesso");
+        response.put("funcionarioId", funcionario.getId());
+        response.put("novoApiarioId", destino.getId());
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{funcionarioId}/atribuir")
+    @PreAuthorize("hasAnyRole('APICULTOR','ADMIN')")
+    public ResponseEntity<?> atribuirFuncionario(@PathVariable Long funcionarioId, @RequestBody RealocarRequest request) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        Usuario solicitante = usuarioRepository.findByUsername(username).orElseThrow();
+
+        Optional<Usuario> funcionarioOpt = usuarioRepository.findById(funcionarioId);
+        if (funcionarioOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        Usuario funcionario = funcionarioOpt.get();
+
+        Optional<Apiario> destinoOpt = apiarioRepository.findById(request.getApiarioId());
+        if (destinoOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Apiário de destino inválido"));
+        }
+        Apiario destino = destinoOpt.get();
+
+        boolean isAdmin = solicitante.getRoles() != null && solicitante.getRoles().contains("ROLE_ADMIN");
+        if (!isAdmin && !destino.getProprietario().getId().equals(solicitante.getId())) {
+            return ResponseEntity.status(403).body(Map.of("error", "Você não é proprietário do apiário de destino"));
+        }
+
+        // Adiciona associação (sem remover vínculos anteriores)
+        boolean jaVinculado = funcionario.getApiariosVinculados().stream().anyMatch(a -> a.getId().equals(destino.getId()));
+        if (!jaVinculado) {
+            funcionario.getApiariosVinculados().add(destino);
+            usuarioRepository.save(funcionario);
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", jaVinculado ? "Funcionário já vinculado a este apiário" : "Funcionário atribuído ao apiário com sucesso");
+        response.put("funcionarioId", funcionario.getId());
+        response.put("apiarioId", destino.getId());
+        return ResponseEntity.ok(response);
+    }
+
+    public static class RealocarRequest {
+        private Long apiarioId;
+
+        public Long getApiarioId() { return apiarioId; }
+        public void setApiarioId(Long apiarioId) { this.apiarioId = apiarioId; }
     }
 
     public static class FuncionarioRequest {

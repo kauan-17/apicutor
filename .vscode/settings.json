@@ -5,5 +5,7 @@
     ],
     "java.project.resourcePaths": [
         "backend/src/main/resources"
-    ]
+    ],
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.jdt.ls.java.home": "${env:JAVA_HOME}"
 }

@@ -21,6 +21,7 @@ com\apicultor\apicutor\model\Producao$UnidadeMedida.class
 com\apicultor\apicutor\controller\FuncionarioController$FuncionarioRequest.class
 com\apicultor\apicutor\model\Usuario.class
 com\apicultor\apicutor\model\Colmeia$TipoColmeia.class
+com\apicultor\apicutor\controller\FuncionarioController$RealocarRequest.class
 com\apicultor\apicutor\repository\ColmeiaRepository.class
 com\apicultor\apicutor\ApicutorApplication.class
 com\apicultor\apicutor\model\Rainha$Origem.class

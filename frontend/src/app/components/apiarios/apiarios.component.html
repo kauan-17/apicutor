@@ -1,7 +1,7 @@
 <div class="container py-4 apiario-page">
   <div class="header d-flex justify-content-between align-items-center mb-3">
     <div>
-      <h2 class="mb-1">{{ apiario?.nome || 'Apiários' }} <span *ngIf="selectedId">#{{ selectedId }}</span></h2>
+      <h2 class="mb-1">{{ apiario?.nome || selectedApiarioName || 'Apiários' }}</h2>
       <p class="text-muted mb-0" *ngIf="apiario">
         {{ apiario.localizacao || 'Localização não informada' }}
       </p>

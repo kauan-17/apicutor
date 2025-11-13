@@ -70,21 +70,6 @@
         </div>
       </div>
 
-      <div class="form-group mb-3">
-        <div class="input-group">
-          <span class="input-group-text">
-            <i class="fas fa-user-shield"></i>
-          </span>
-          <select class="form-select" formControlName="role" [ngClass]="{ 'is-invalid': submitted && f['role'].errors }">
-            <option value="APICULTOR">Apicultor</option>
-            <option value="FUNCIONARIO">Funcionário</option>
-            <option value="ADMIN">Admin</option>
-          </select>
-        </div>
-        <div *ngIf="submitted && f['role'].errors" class="invalid-feedback">
-          <div *ngIf="f['role'].errors['required']">Nível de acesso é obrigatório</div>
-        </div>
-      </div>
 
       <div class="form-group mb-3">
         <div class="input-group">
@@ -141,6 +126,15 @@
           <div *ngIf="f['confirmPassword'].errors['required']">Confirmação é obrigatória</div>
           <div *ngIf="f['confirmPassword'].errors['mustMatch']">Senhas não coincidem</div>
         </div>
+      </div>
+
+      <!-- Seleção de perfil de usuário (Apicultor/Admin) -->
+      <div class="form-group mb-3">
+        <label class="form-label">Perfil</label>
+        <select class="form-select" formControlName="role">
+          <option value="ROLE_APICULTOR">Apicultor</option>
+          <option value="ROLE_ADMIN">Admin</option>
+        </select>
       </div>
 
       <div *ngIf="error" class="alert alert-danger alert-dismissible fade show mb-4" role="alert">

@@ -36,4 +36,8 @@ export class FuncionarioService {
   getMe(): Observable<any> {
     return this.http.get<any>(`${this.baseUrl}/me`, this.authOptions());
   }
+
+  atribuir(funcionarioId: number, apiarioId: number): Observable<any> {
+    return this.http.put(`${this.baseUrl}/${funcionarioId}/atribuir`, { apiarioId }, this.authOptions());
+  }
 }

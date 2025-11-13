@@ -29,6 +29,16 @@ public class ApiarioController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
         Usuario usuario = usuarioRepository.findByUsername(username).orElseThrow();
+
+        boolean isAdmin = usuario.getRoles() != null && usuario.getRoles().contains("ROLE_ADMIN");
+        boolean isFuncionario = usuario.getRoles() != null && (usuario.getRoles().contains("ROLE_FUNCIONARIO") || usuario.getRoles().contains("FUNCIONARIO"));
+
+        if (isAdmin) {
+            return apiarioRepository.findAll();
+        }
+        if (isFuncionario) {
+            return new java.util.ArrayList<>(usuario.getApiariosVinculados());
+        }
         return apiarioRepository.findByProprietario(usuario);
     }
 

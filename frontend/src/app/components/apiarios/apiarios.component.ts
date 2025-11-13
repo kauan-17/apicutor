@@ -27,6 +27,13 @@ export class ApiariosComponent {
   clima?: Clima;
   feedbackMessage?: string;
 
+  get selectedApiarioName(): string | undefined {
+    const id = this.selectedId;
+    if (!id) return undefined;
+    const a = this.apiariosLista?.find(x => x?.id === id);
+    return a?.nome;
+  }
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -43,35 +50,9 @@ export class ApiariosComponent {
       }
     });
 
-    // Carregar lista de apiários para seleção
-    // Se for funcionário, tenta carregar o apiário associado ao usuário
-    if (this.authService.hasRole('ROLE_FUNCIONARIO') || this.authService.hasRole('FUNCIONARIO')) {
-      const apiarioIdFromToken = this.authService.getCurrentUser()?.apiarioId;
-      if (apiarioIdFromToken) {
-        this.selectedId = apiarioIdFromToken;
-        this.loadData(apiarioIdFromToken);
-        this.apiarioHttp.getApiario(apiarioIdFromToken).subscribe(a => (this.apiariosLista = a ? [a] : []));
-      } else {
-        // Fallback: tenta obter do backend
-        this.funcionarioService.getMe().subscribe({
-          next: (me: any) => {
-            const apiarioId = me?.apiarioId ?? me?.apiario?.id;
-            if (apiarioId) {
-              this.selectedId = apiarioId;
-              this.loadData(apiarioId);
-              this.apiarioHttp.getApiario(apiarioId).subscribe(a => (this.apiariosLista = a ? [a] : []));
-            } else {
-              this.apiarioHttp.getApiarios().subscribe(lista => (this.apiariosLista = lista));
-            }
-          },
-          error: () => {
-            this.apiarioHttp.getApiarios().subscribe(lista => (this.apiariosLista = lista));
-          }
-        });
-      }
-    } else {
-      this.apiarioHttp.getApiarios().subscribe(lista => (this.apiariosLista = lista));
-    }
+    // Carregar lista de apiários para seleção (sem auto seleção para funcionários)
+    // Backend já filtra os apiários visíveis conforme a permissão
+    this.apiarioHttp.getApiarios().subscribe(lista => (this.apiariosLista = lista ?? []));
   }
 
   private loadData(apiarioId: number) {
