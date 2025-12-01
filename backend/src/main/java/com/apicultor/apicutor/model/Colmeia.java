@@ -52,12 +52,40 @@ public class Colmeia {
     
     @Enumerated(EnumType.STRING)
     private StatusColmeia status = StatusColmeia.ATIVA;
+
+    // Novos campos solicitados
+    @Enumerated(EnumType.STRING)
+    private TipoAbelha tipoAbelha;
+
+    @Enumerated(EnumType.STRING)
+    private StatusRainha rainhaStatus; // NOVA ou ANTIGA
+
+    @Enumerated(EnumType.STRING)
+    private OrigemColonia origemColonia; // CAPTURA ou DIVISAO
+
+    private Boolean melgueira = false; // indica se possui melgueira
+
+    // Quantidade de melgueiras (se o backend receber este campo)
+    // Mantém compatibilidade: quando quantidade > 0, frontend também envia melgueira=true
+    private Integer quantidadeMelgueiras = 0;
     
     public enum TipoColmeia {
         LANGSTROTH, DADANT, SCHENK, WARRÉ, QUENIANA, OUTRO
     }
-    
+
     public enum StatusColmeia {
         ATIVA, INATIVA, PERDIDA, EM_OBSERVACAO, DOENTE
+    }
+
+    public enum TipoAbelha {
+        AFRICANA, EUROPEIA, CARNICA, ITALIANA, MISTA, OUTRA
+    }
+
+    public enum StatusRainha {
+        NOVA, ANTIGA
+    }
+
+    public enum OrigemColonia {
+        CAPTURA, DIVISAO
     }
 }

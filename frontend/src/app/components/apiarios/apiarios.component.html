@@ -6,17 +6,39 @@
         {{ apiario.localizacao || 'Localização não informada' }}
       </p>
     </div>
-    <div class="actions">
-      <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="btn btn-secondary me-2">Voltar ao Dashboard</a>
-      <a *appHasRoleAny="['ROLE_APICULTOR','ROLE_ADMIN']" routerLink="/apiarios/novo" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="btn btn-primary me-2">Novo Apiário</a>
-      <a *ngIf="selectedId" routerLink="/apiarios" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="btn btn-success me-2">Escolher Outro Apiário</a>
-      <ng-container *ngIf="selectedId">
-        <a class="btn btn-warning me-2" routerLinkActive="active" *appHasRoleAny="['ROLE_APICULTOR','ROLE_ADMIN']" [routerLink]="['/apiarios', selectedId, 'editar']">Editar</a>
-      </ng-container>
-      <ng-container *ngIf="selectedId">
-        <a class="btn btn-info" routerLinkActive="active" *appHasRoleAny="['ROLE_APICULTOR','ROLE_FUNCIONARIO','ROLE_ADMIN']" [routerLink]="['/apiarios', selectedId, 'inspecao', 'nova']">Nova Inspeção</a>
-      </ng-container>
-      <button class="btn btn-danger ms-2" *ngIf="selectedId && authService.hasRole('ROLE_ADMIN')" (click)="excluirApiario()">Excluir</button>
+    <div class="actions btn-toolbar justify-content-end" role="toolbar">
+      <div class="btn-group me-2" role="group">
+        <a [routerLink]="selectedId ? ['/apiarios'] : ['/dashboard']" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="btn btn-secondary btn-sm" [title]="selectedId ? 'Voltar para lista de apiários' : 'Voltar ao Dashboard'">
+          <i class="fas fa-arrow-left me-1"></i>
+          Voltar
+        </a>
+      </div>
+      <div class="btn-group me-2" role="group">
+        <a *appHasRoleAny="['ROLE_APICULTOR','ROLE_ADMIN']" routerLink="/apiarios/novo" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="btn btn-primary btn-sm" title="Novo Apiário">
+          <i class="fas fa-plus me-1"></i>
+          Novo Apiário
+        </a>
+        <ng-container *ngIf="selectedId">
+          <a class="btn btn-secondary btn-sm" routerLink="/colmeias" [queryParams]="{ apiarioId: selectedId }" title="Ver Colmeias deste Apiário">
+            <i class="fas fa-th me-1"></i>
+            Colmeias
+          </a>
+          <a class="btn btn-info btn-sm" routerLinkActive="active" *appHasRoleAny="['ROLE_APICULTOR','ROLE_FUNCIONARIO','ROLE_ADMIN']" [routerLink]="['/apiarios', selectedId, 'inspecao', 'nova']" title="Nova Inspeção">
+            <i class="fas fa-clipboard-check me-1"></i>
+            Nova Inspeção
+          </a>
+        </ng-container>
+      </div>
+      <div class="btn-group" role="group" *ngIf="selectedId">
+        <a class="btn btn-warning btn-sm" routerLinkActive="active" *appHasRoleAny="['ROLE_APICULTOR','ROLE_ADMIN']" [routerLink]="['/apiarios', selectedId, 'editar']" title="Editar Apiário">
+          <i class="fas fa-edit me-1"></i>
+          Editar
+        </a>
+        <button class="btn btn-outline-danger btn-sm" *ngIf="authService.hasRole('ROLE_ADMIN')" (click)="excluirApiario()" title="Excluir Apiário">
+          <i class="fas fa-trash me-1"></i>
+          Excluir
+        </button>
+      </div>
     </div>
   </div>
 
@@ -34,6 +56,9 @@
               <div class="small text-muted">{{ a.localizacao || 'Localização não informada' }}</div>
             </div>
             <span class="badge bg-secondary">{{ a.totalColmeias }} colmeias</span>
+            <a class="btn btn-sm btn-outline-secondary ms-2" routerLink="/colmeias" [queryParams]="{ apiarioId: a.id }" title="Ver Colmeias">
+              Ver Colmeias
+            </a>
           </div>
         </a>
         <div *ngIf="!apiariosLista?.length" class="text-muted">Nenhum apiário disponível.</div>
@@ -48,7 +73,7 @@
       <div class="card stat">
         <div class="card-body">
           <div class="label">Colmeias</div>
-          <div class="value">{{ apiario?.totalColmeias || colmeias.length }}</div>
+          <div class="value">{{ colmeias.length }}</div>
         </div>
       </div>
     </div>
@@ -56,7 +81,7 @@
       <div class="card stat">
         <div class="card-body">
           <div class="label">Ativas</div>
-          <div class="value">{{ apiario?.colmeiasAtivas }}</div>
+          <div class="value">{{ getActiveCount() }}</div>
         </div>
       </div>
     </div>
@@ -64,7 +89,7 @@
       <div class="card stat">
         <div class="card-body">
           <div class="label">Inativas</div>
-          <div class="value">{{ apiario?.colmeiasInativas }}</div>
+          <div class="value">{{ getInactiveCount() }}</div>
         </div>
       </div>
     </div>

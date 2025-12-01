@@ -2,8 +2,9 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
-import { ApiariosService, Colmeia, Inspecao, ProducaoResumo, Tarefa, Alerta, Clima } from '../../services/apiarios.service';
+import { ApiariosService, Inspecao, ProducaoResumo, Tarefa, Alerta, Clima } from '../../services/apiarios.service';
 import { ApiarioService } from '../../services/apiario.service';
+import { ColmeiaService } from '../../services/colmeia.service';
 import { FuncionarioService } from '../../services/funcionario.service';
 import { AuthService } from '../../auth/auth.service';
 import { RoleVisibilityDirective } from '../../auth/role-visibility.directive';
@@ -19,7 +20,7 @@ export class ApiariosComponent {
   selectedId?: number;
   apiario?: any;
   apiariosLista: any[] = [];
-  colmeias: Colmeia[] = [];
+  colmeias: any[] = [];
   inspecoes: Inspecao[] = [];
   resumo?: ProducaoResumo;
   tarefas: Tarefa[] = [];
@@ -39,6 +40,7 @@ export class ApiariosComponent {
     private router: Router,
     private apiariosService: ApiariosService,
     private apiarioHttp: ApiarioService,
+    private colmeiaHttp: ColmeiaService,
     private funcionarioService: FuncionarioService,
     public authService: AuthService
   ) {
@@ -57,7 +59,8 @@ export class ApiariosComponent {
 
   private loadData(apiarioId: number) {
     this.apiarioHttp.getApiario(apiarioId).subscribe(a => (this.apiario = a));
-    this.apiariosService.getColmeias(apiarioId).subscribe(c => (this.colmeias = c));
+    // Carrega colmeias do backend para refletir dados reais
+    this.colmeiaHttp.getColmeiasByApiario(apiarioId).subscribe(c => (this.colmeias = c || []));
     this.apiariosService.getInspecoes(apiarioId).subscribe(i => (this.inspecoes = i));
     this.apiariosService.getResumoProducao(apiarioId).subscribe(r => (this.resumo = r));
     this.apiariosService.getTarefas(apiarioId).subscribe(t => (this.tarefas = t));
@@ -99,5 +102,21 @@ export class ApiariosComponent {
         setTimeout(() => (this.feedbackMessage = undefined), 3000);
       }
     });
+  }
+
+  getActiveCount(): number {
+    if (!this.colmeias?.length) return 0;
+    return this.colmeias.filter(c => {
+      const s = (c?.status || '').toString().toUpperCase();
+      return s === 'ATIVA';
+    }).length;
+  }
+
+  getInactiveCount(): number {
+    if (!this.colmeias?.length) return 0;
+    return this.colmeias.filter(c => {
+      const s = (c?.status || '').toString().toUpperCase();
+      return s === 'INATIVA';
+    }).length;
   }
 }

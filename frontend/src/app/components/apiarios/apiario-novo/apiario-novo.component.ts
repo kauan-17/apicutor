@@ -49,6 +49,6 @@ export class ApiarioNovoComponent {
   }
 
   cancelar() {
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/apiarios']);
   }
 }

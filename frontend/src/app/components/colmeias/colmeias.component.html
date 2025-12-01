@@ -1,5 +1,166 @@
 <div class="container py-4">
-  <h2 class="mb-3">Colmeias</h2>
-  <div class="alert alert-warning">Página em construção.</div>
-<a routerLink="/dashboard" class="btn btn-secondary">Voltar ao Dashboard</a>
+  <div class="d-flex align-items-center mb-3 justify-content-between">
+    <h2 class="mb-0">Colmeias</h2>
+    <div class="btn-group">
+      <button class="btn btn-secondary btn-sm" (click)="navigateBack()" [title]="selectedApiarioId ? 'Voltar ao Apiário' : 'Voltar aos Apiários'">
+        <i class="fas fa-arrow-left me-1"></i>
+        {{ selectedApiarioId ? 'Voltar ao Apiário' : 'Voltar aos Apiários' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="row g-2 align-items-end">
+        <div class="col-md-6">
+          <label for="apiarioSel" class="form-label">Apiário</label>
+          <select id="apiarioSel" class="form-select" [value]="selectedApiarioId || ''" (change)="onApiarioChange($event)">
+            <option value="" disabled>Selecione um apiário</option>
+            <option *ngFor="let a of apiarios" [value]="a.id">{{ a.nome }}</option>
+          </select>
+        </div>
+        <div class="col-md-6 d-flex justify-content-md-end justify-content-start mt-2 mt-md-0">
+          <button class="btn btn-primary" (click)="toggleForm()" *appHasRoleAny="['ROLE_APICULTOR','ROLE_ADMIN','ROLE_FUNCIONARIO','APICULTOR','ADMIN','FUNCIONARIO']">
+            {{ showForm ? 'Fechar' : 'Nova Colmeia' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert alert-danger" *ngIf="error">{{ error }}</div>
+
+  <div class="card mb-4" *ngIf="showForm">
+    <div class="card-header">{{ editingColmeiaId ? 'Editar colmeia' : 'Cadastrar nova colmeia' }}</div>
+    <div class="card-body">
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label">Identificação</label>
+            <input type="text" class="form-control" formControlName="identificacao" placeholder="Ex: C-001" />
+            <div class="invalid-feedback d-block" *ngIf="form.controls['identificacao'].invalid && form.controls['identificacao'].touched">
+              Informe a identificação.
+            </div>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Tipo</label>
+            <select class="form-select" formControlName="tipo">
+              <option *ngFor="let t of tipos" [value]="t.value">{{ t.label }}</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Tipo de Abelha</label>
+            <select class="form-select" formControlName="tipoAbelha">
+              <option *ngFor="let t of tiposAbelha" [value]="t.value">{{ t.label }}</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Rainha</label>
+            <select class="form-select" formControlName="rainhaStatus">
+              <option *ngFor="let r of rainhaStatuses" [value]="r.value">{{ r.label }}</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Origem da Colônia</label>
+            <select class="form-select" formControlName="origemColonia">
+              <option *ngFor="let o of origensColonia" [value]="o.value">{{ o.label }}</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="qtdMelgueira">Quantidade de Melgueiras</label>
+            <input id="qtdMelgueira" type="number" min="0" step="1" class="form-control" formControlName="quantidadeMelgueiras" placeholder="0" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Data de Instalação</label>
+            <input type="date" class="form-control" formControlName="dataInstalacao" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Status</label>
+            <select class="form-select" formControlName="status">
+              <option *ngFor="let s of statuses" [value]="s.value">{{ s.label }}</option>
+            </select>
+          </div>
+          <div class="col-md-8">
+            <label class="form-label">Observações</label>
+            <textarea class="form-control" rows="2" formControlName="observacoes" placeholder="Notas adicionais"></textarea>
+          </div>
+        </div>
+        <div class="mt-3 d-flex justify-content-end gap-2">
+          <button type="button" class="btn btn-secondary" (click)="cancelEdit(); showForm=false">
+            <i class="fas fa-times me-1"></i>
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="loading">
+            <i class="fas me-1" [ngClass]="editingColmeiaId ? 'fa-save' : 'fa-plus'"></i>
+            {{ editingColmeiaId ? 'Atualizar' : 'Salvar' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <span>Lista de colmeias</span>
+      <span *ngIf="loading" class="text-muted small">Carregando...</span>
+    </div>
+    <div class="card-body p-0">
+      <div *ngIf="colmeias.length === 0 && !loading" class="p-3 text-muted">Nenhuma colmeia encontrada para o filtro selecionado.</div>
+      <div class="table-responsive" *ngIf="colmeias.length > 0">
+        <table class="table table-striped mb-0 align-middle">
+          <thead>
+            <tr>
+              <th>Identificação</th>
+              <th>Tipo</th>
+              <th>Tipo de Abelha</th>
+              <th>Rainha</th>
+              <th>Origem</th>
+              <th>Melgueiras</th>
+              <th>Status</th>
+              <th>Instalação</th>
+              <th>Apiário</th>
+              <th class="text-end" *appHasRoleAny="['ROLE_APICULTOR','ROLE_ADMIN','APICULTOR','ADMIN']">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let c of colmeias">
+              <td>{{ c.identificacao }}</td>
+              <td>{{ tipoLabel(c.tipo) }}</td>
+              <td>{{ tipoAbelhaLabel(c.tipoAbelha) }}</td>
+              <td>{{ c.rainhaStatus === 'NOVA' ? 'Nova' : (c.rainhaStatus === 'ANTIGA' ? 'Antiga' : '-') }}</td>
+              <td>{{ origemColoniaLabel(c.origemColonia) }}</td>
+              <td>
+                <span class="badge" [ngClass]="{ 'bg-info': getQuantidadeMelgueiras(c) > 0, 'bg-secondary': getQuantidadeMelgueiras(c) === 0 }">
+                  {{ getQuantidadeMelgueiras(c) }}
+                </span>
+              </td>
+              <td>
+                <span class="badge" [ngClass]="{
+                  'bg-success': c.status === 'ATIVA',
+                  'bg-warning text-dark': c.status === 'EM_OBSERVACAO',
+                  'bg-secondary': c.status === 'INATIVA',
+                  'bg-danger': c.status === 'DOENTE',
+                  'bg-dark': c.status === 'PERDIDA'
+                }">{{ c.status }}</span>
+              </td>
+              <td>{{ c.dataInstalacao | date:'dd/MM/yyyy' }}</td>
+              <td>{{ c.apiario?.nome || '-' }}</td>
+              <td class="text-end" *appHasRoleAny="['ROLE_APICULTOR','ROLE_ADMIN','APICULTOR','ADMIN']">
+                <div class="btn-group">
+                  <button class="btn btn-sm btn-warning" title="Editar colmeia" (click)="startEdit(c)">
+                    <i class="fas fa-edit me-1"></i>
+                    Editar
+                  </button>
+                  <button class="btn btn-sm btn-danger ms-1" title="Excluir colmeia" (click)="deleteColmeia(c)" [disabled]="loading">
+                    <i class="fas fa-trash me-1"></i>
+                    Excluir
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </div>

@@ -19,12 +19,15 @@ com\apicultor\apicutor\security\JwtTokenProvider.class
 com\apicultor\apicutor\repository\ApiarioRepository.class
 com\apicultor\apicutor\model\Producao$UnidadeMedida.class
 com\apicultor\apicutor\controller\FuncionarioController$FuncionarioRequest.class
+com\apicultor\apicutor\model\Colmeia$TipoAbelha.class
 com\apicultor\apicutor\model\Usuario.class
 com\apicultor\apicutor\model\Colmeia$TipoColmeia.class
 com\apicultor\apicutor\controller\FuncionarioController$RealocarRequest.class
 com\apicultor\apicutor\repository\ColmeiaRepository.class
 com\apicultor\apicutor\ApicutorApplication.class
 com\apicultor\apicutor\model\Rainha$Origem.class
+com\apicultor\apicutor\model\Colmeia$OrigemColonia.class
 com\apicultor\apicutor\config\CorsConfig.class
 com\apicultor\apicutor\model\Apiario.class
+com\apicultor\apicutor\model\Colmeia$StatusRainha.class
 com\apicultor\apicutor\controller\AdminUserController.class

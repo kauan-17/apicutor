@@ -16,7 +16,8 @@ export class ColmeiaService {
   }
 
   getColmeiasByApiario(apiarioId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${environment.apiUrl}/apiarios/${apiarioId}/colmeias`);
+    // Backend endpoint: GET /api/colmeias/apiario/{apiarioId}
+    return this.http.get<any[]>(`${this.apiUrl}/apiario/${apiarioId}`);
   }
 
   getColmeia(id: number): Observable<any> {
