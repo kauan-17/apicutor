@@ -1,6 +1,17 @@
-# Y
+# Frontend (Angular)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.2.
+Aplicação Angular do projeto Apicutor. Foi gerada com [Angular CLI](https://github.com/angular/angular-cli) versão 20.3.2 e personalizada com rotas e navegação para gerenciamento de Apiários e Colmeias.
+
+## Rotas principais
+
+- `/` Home com atalhos para "Meus Apiários" e "Minhas Colmeias".
+- `/dashboard` Estatísticas e ações rápidas (inclui atalho "Nova Colmeia").
+- `/apiarios` Lista e gestão de apiários.
+- `/apiarios/novo` Criação de novo apiário. Botões "Voltar" e "Cancelar" retornam para `/apiarios`.
+- `/apiarios/:id` Página inicial do apiário.
+- `/apiarios/:id/editar` Edição de apiário.
+- `/colmeias` Gestão de colmeias; aceita `apiarioId` como query param para pré‑seleção, ex.: `/colmeias?apiarioId=1`.
+  - Botão "Voltar" navega para `/apiarios/:id` quando há contexto de apiário, caso contrário vai para `/apiarios`.
 
 ## Development server
 
@@ -11,6 +22,8 @@ ng serve
 ```
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+
+Alternatively, you can run `npm start`, which uses `ng serve` under the hood.
 
 ## Code scaffolding
 

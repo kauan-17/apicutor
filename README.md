@@ -120,6 +120,9 @@ O frontend estará disponível em http://localhost:4200
 - ✅ Adicionado suporte à propriedade `localizacao` nos apiários
 - ✅ Corrigido problema de visibilidade dos botões outline
 - ✅ Implementado estilos modernos para todos os tipos de botões
+ - ✅ Ajustado navegação dos botões "Voltar/Cancelar" ao criar Apiário para retornar a `/apiarios`
+ - ✅ Botão "Voltar" na tela de Colmeias agora retorna ao Apiário (`/apiarios/:id`) quando há contexto, ou à lista de Apiários (`/apiarios`)
+ - ✅ Tela de Colmeias aceita `apiarioId` como query param para pré‑seleção (`/colmeias?apiarioId=<id>`) 
 
 ## 📱 Responsividade
 O sistema é totalmente responsivo e funciona perfeitamente em:
@@ -181,6 +184,25 @@ npm start
 # Ou compile para produção
 npm run build
 ```
+
+## 🧭 Rotas e Navegação
+
+- `/:` Página inicial com atalhos para "Meus Apiários" e "Minhas Colmeias".
+- `/dashboard`: Visão geral com estatísticas e ações rápidas (inclui atalho "Nova Colmeia").
+- `/apiarios`: Lista e gestão de apiários.
+- `/apiarios/novo`: Criação de novo apiário.
+  - Botões "Voltar" e "Cancelar" retornam para `/apiarios`.
+- `/apiarios/:id`: Página inicial do apiário selecionado.
+- `/apiarios/:id/editar`: Edição de apiário.
+- `/colmeias`: Gestão de colmeias (pode listar todas ou por apiário).
+  - Suporta pré‑seleção via `apiarioId` como query param, ex.: `/colmeias?apiarioId=1`.
+  - Botão "Voltar":
+    - Com `apiarioId` (ou apiário selecionado): navega para `/apiarios/:id`.
+    - Sem contexto: navega para `/apiarios`.
+
+### Dicas de Navegação
+- Para abrir diretamente as colmeias de um apiário específico, use `/colmeias?apiarioId=<id>`.
+- Em listagens de apiários, utilize o atalho "Ver Colmeias" para contexto de navegação consistente.
 
 ## 📝 Notas de Desenvolvimento
 - O sistema utiliza porta 8080 para backend e 4200 para frontend
