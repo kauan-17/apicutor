@@ -1,0 +1,29 @@
+<div class="container py-4">
+  <h2>Nova Colmeia</h2>
+  <div *ngIf="loading" class="alert alert-info">Carregando apiários...</div>
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+  <form [formGroup]="form" (ngSubmit)="salvar()" *ngIf="!loading">
+    <div class="mb-3">
+      <label class="form-label">Nome</label>
+      <input class="form-control" formControlName="nome" placeholder="Ex: Colmeia A" />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Apiário</label>
+      <select class="form-select" formControlName="apiarioId">
+        <option [ngValue]="null">Selecione...</option>
+        <option *ngFor="let a of apiarios" [value]="a.id">{{ a.nome }}</option>
+      </select>
+    </div>
+
+    <div class="form-check mb-3">
+      <input type="checkbox" class="form-check-input" id="ativa" formControlName="ativa" />
+      <label class="form-check-label" for="ativa">Ativa</label>
+    </div>
+
+    <button class="btn btn-primary me-2" type="submit" [disabled]="saving">Salvar</button>
+    <a routerLink="/colmeias" class="btn btn-secondary">Cancelar</a>
+  </form>
+</div>
+

@@ -54,6 +54,7 @@ O frontend estará disponível em http://localhost:4200
 - Visualização com localização
 - Controle de colmeias por apiário
 - Interface intuitiva com cards modernos
+ - Mapa interativo do Google na página do apiário, com marcador nas coordenadas
 
 ### 🐝 Controle de Colmeias
 - Gerenciamento completo de colmeias
@@ -122,7 +123,8 @@ O frontend estará disponível em http://localhost:4200
 - ✅ Implementado estilos modernos para todos os tipos de botões
  - ✅ Ajustado navegação dos botões "Voltar/Cancelar" ao criar Apiário para retornar a `/apiarios`
  - ✅ Botão "Voltar" na tela de Colmeias agora retorna ao Apiário (`/apiarios/:id`) quando há contexto, ou à lista de Apiários (`/apiarios`)
- - ✅ Tela de Colmeias aceita `apiarioId` como query param para pré‑seleção (`/colmeias?apiarioId=<id>`) 
+- ✅ Tela de Colmeias aceita `apiarioId` como query param para pré‑seleção (`/colmeias?apiarioId=<id>`) 
+ - ✅ Integrado Google Maps na página de Apiários (marcador baseado em `latitude/longitude`)
 
 ## 📱 Responsividade
 O sistema é totalmente responsivo e funciona perfeitamente em:
@@ -185,6 +187,21 @@ npm start
 npm run build
 ```
 
+### Google Maps (Frontend)
+- Instale o pacote de mapas (já adicionamos ao projeto): `@angular/google-maps`.
+- Configure sua chave da API do Google Maps em `frontend/src/environments/environment.ts`:
+
+```ts
+export const environment = {
+  production: false,
+  apiUrl: 'http://localhost:8080/api',
+  googleMapsApiKey: 'SUA_CHAVE_AQUI'
+};
+```
+
+- Na página de Apiários (`/apiarios/:id`), o mapa aparecerá quando a chave for válida. O centro do mapa usa `apiario.latitude` e `apiario.longitude`.
+- Caso a chave não esteja configurada, será exibida a mensagem: "Carregando mapa… configure sua chave da API do Google.".
+
 ## 🧭 Rotas e Navegação
 
 - `/:` Página inicial com atalhos para "Meus Apiários" e "Minhas Colmeias".
@@ -193,6 +210,7 @@ npm run build
 - `/apiarios/novo`: Criação de novo apiário.
   - Botões "Voltar" e "Cancelar" retornam para `/apiarios`.
 - `/apiarios/:id`: Página inicial do apiário selecionado.
+  - Exibe mapa Google com marcador nas coordenadas cadastradas.
 - `/apiarios/:id/editar`: Edição de apiário.
 - `/colmeias`: Gestão de colmeias (pode listar todas ou por apiário).
   - Suporta pré‑seleção via `apiarioId` como query param, ex.: `/colmeias?apiarioId=1`.

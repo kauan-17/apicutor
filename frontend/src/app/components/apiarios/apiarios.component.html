@@ -207,7 +207,11 @@
   <div class="card mt-3" *ngIf="selectedId">
     <div class="card-header">Localização</div>
     <div class="card-body">
-      <div class="map-placeholder">Mapa do apiário (em breve)</div>
+      <google-map *ngIf="mapsReady" [height]="'300px'" [width]="'100%'" [center]="mapCenter" [zoom]="mapZoom">
+        <map-marker [position]="mapCenter" [title]="apiario?.nome || 'Apiário'">
+        </map-marker>
+      </google-map>
+      <div *ngIf="!mapsReady" class="text-muted">Carregando mapa… configure sua chave da API do Google.</div>
       <div class="small text-muted mt-2" *ngIf="apiario">Lat: {{ apiario.latitude }} / Lng: {{ apiario.longitude }}</div>
     </div>
   </div>

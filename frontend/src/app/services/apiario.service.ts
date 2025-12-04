@@ -6,6 +6,11 @@ import { environment } from '../../environments/environment';
 export interface Apiario {
   id: number;
   nome: string;
+  localizacao?: string;
+  latitude?: number;
+  longitude?: number;
+  descricao?: string;
+  totalColmeias?: number;
   colmeias?: any[];
 }
 

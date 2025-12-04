@@ -9,6 +9,7 @@ Aplicação Angular do projeto Apicutor. Foi gerada com [Angular CLI](https://gi
 - `/apiarios` Lista e gestão de apiários.
 - `/apiarios/novo` Criação de novo apiário. Botões "Voltar" e "Cancelar" retornam para `/apiarios`.
 - `/apiarios/:id` Página inicial do apiário.
+  - Exibe um mapa do Google com marcador nas coordenadas (`latitude`/`longitude`).
 - `/apiarios/:id/editar` Edição de apiário.
 - `/colmeias` Gestão de colmeias; aceita `apiarioId` como query param para pré‑seleção, ex.: `/colmeias?apiarioId=1`.
   - Botão "Voltar" navega para `/apiarios/:id` quando há contexto de apiário, caso contrário vai para `/apiarios`.
@@ -24,6 +25,14 @@ ng serve
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
 
 Alternatively, you can run `npm start`, which uses `ng serve` under the hood.
+
+## Google Maps
+
+Para habilitar o mapa do Google na página de Apiários:
+
+- Defina sua chave de API em `src/environments/environment.ts` na propriedade `googleMapsApiKey`.
+- O mapa é carregado dinamicamente por um serviço (`GoogleMapsLoaderService`). Se a chave não estiver definida, será mostrado um aviso e o mapa não aparecerá.
+- O centro e o marcador usam os campos `latitude` e `longitude` retornados do backend para o apiário selecionado.
 
 ## Code scaffolding
 

@@ -1,0 +1,49 @@
+<div class="container py-4">
+  <h2>Funcionários</h2>
+  <div class="mb-3">
+    <label class="form-label">Selecionar Apiário</label>
+    <select class="form-select" [(ngModel)]="selecionadoApiarioId" (change)="carregarFuncionarios()">
+      <option [ngValue]="undefined">Selecione...</option>
+      <option *ngFor="let a of apiarios" [value]="a.id">{{ a.nome }}</option>
+    </select>
+  </div>
+
+  <div *ngIf="loading" class="alert alert-info">Carregando...</div>
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+  <div *ngIf="!loading && selecionadoApiarioId && !funcionarios.length" class="alert alert-warning">Nenhum funcionário alocado neste apiário.</div>
+
+  <div class="table-responsive" *ngIf="!loading && funcionarios.length">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nome</th>
+          <th>Username</th>
+          <th>Email</th>
+          <th>Realocar para</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let f of funcionarios">
+          <td>{{ f.id }}</td>
+          <td>{{ f.nome }}</td>
+          <td>{{ f.username }}</td>
+          <td>{{ f.email }}</td>
+          <td>
+            <select class="form-select" [(ngModel)]="realocarPara[f.id]">
+              <option [ngValue]="undefined">Selecione...</option>
+              <option *ngFor="let a of apiarios" [value]="a.id">{{ a.nome }}</option>
+            </select>
+          </td>
+          <td>
+            <button class="btn btn-sm btn-outline-primary" (click)="realocar(f.id, selecionadoApiarioId!)">Realocar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <a routerLink="/dashboard" class="btn btn-secondary">Voltar ao Dashboard</a>
+</div>
+

@@ -8,11 +8,13 @@ import { ColmeiaService } from '../../services/colmeia.service';
 import { FuncionarioService } from '../../services/funcionario.service';
 import { AuthService } from '../../auth/auth.service';
 import { RoleVisibilityDirective } from '../../auth/role-visibility.directive';
+import { GoogleMapsModule } from '@angular/google-maps';
+import { GoogleMapsLoaderService } from '../../services/google-maps-loader.service';
 
 @Component({
   selector: 'app-apiarios',
   standalone: true,
-  imports: [CommonModule, RouterModule, RoleVisibilityDirective],
+  imports: [CommonModule, RouterModule, RoleVisibilityDirective, GoogleMapsModule],
   templateUrl: './apiarios.component.html',
   styleUrls: ['./apiarios.component.css']
 })
@@ -28,6 +30,10 @@ export class ApiariosComponent {
   clima?: Clima;
   feedbackMessage?: string;
 
+  mapsReady = false;
+  mapCenter: { lat: number; lng: number } = { lat: -15.78, lng: -47.93 }; // default Brasilia
+  mapZoom = 13;
+
   get selectedApiarioName(): string | undefined {
     const id = this.selectedId;
     if (!id) return undefined;
@@ -42,8 +48,14 @@ export class ApiariosComponent {
     private apiarioHttp: ApiarioService,
     private colmeiaHttp: ColmeiaService,
     private funcionarioService: FuncionarioService,
-    public authService: AuthService
+    public authService: AuthService,
+    private mapsLoader: GoogleMapsLoaderService
   ) {
+    // Carregar Google Maps JS API
+    this.mapsLoader.load()
+      .then(() => this.mapsReady = true)
+      .catch(err => console.error('Falha ao carregar Google Maps API', err));
+
     this.route.params.subscribe(params => {
       const id = params['id'];
       this.selectedId = id ? +id : undefined;
@@ -58,7 +70,14 @@ export class ApiariosComponent {
   }
 
   private loadData(apiarioId: number) {
-    this.apiarioHttp.getApiario(apiarioId).subscribe(a => (this.apiario = a));
+    this.apiarioHttp.getApiario(apiarioId).subscribe(a => {
+      this.apiario = a;
+      const lat = Number(a?.latitude);
+      const lng = Number(a?.longitude);
+      if (Number.isFinite(lat) && Number.isFinite(lng)) {
+        this.mapCenter = { lat, lng };
+      }
+    });
     // Carrega colmeias do backend para refletir dados reais
     this.colmeiaHttp.getColmeiasByApiario(apiarioId).subscribe(c => (this.colmeias = c || []));
     this.apiariosService.getInspecoes(apiarioId).subscribe(i => (this.inspecoes = i));

@@ -44,7 +44,7 @@
           <i class="fas fa-chart-line dashboard-icon"></i>
           <div class="dashboard-number">{{ stats.producaoMes }} kg</div>
           <div class="dashboard-label">Produção Mês</div>
-          <small class="text-muted">Mel produzido</small>
+          <small class="text-muted">Mel produzido<span *ngIf="monthLabel && monthYear"> — {{ monthLabel }}/{{ monthYear }}</span></small>
         </div>
       </div>
     </div>

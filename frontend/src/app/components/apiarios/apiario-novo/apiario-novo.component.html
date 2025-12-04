@@ -33,12 +33,20 @@
           </div>
 
           <div class="col-md-3">
-            <label class="form-label">Latitude</label>
-            <input type="number" step="any" class="form-control" [(ngModel)]="latitude" name="latitude" />
+            <label class="form-label">Visualizar no Mapa</label>
+            <button type="button" class="btn btn-outline-primary w-100" (click)="mostrarNoMapa()">Mostrar no mapa</button>
           </div>
           <div class="col-md-3">
-            <label class="form-label">Longitude</label>
-            <input type="number" step="any" class="form-control" [(ngModel)]="longitude" name="longitude" />
+            <label class="form-label">&nbsp;</label>
+            <div class="form-text">O mapa usa o endereço acima.</div>
+          </div>
+
+          <div class="col-12" *ngIf="mapsReady">
+            <div style="height: 300px;" class="border rounded">
+              <google-map [center]="mapCenter" [zoom]="mapZoom" height="300px" width="100%">
+                <map-marker *ngIf="markerPosition" [position]="markerPosition"></map-marker>
+              </google-map>
+            </div>
           </div>
           <div class="col-12">
             <label class="form-label">Descrição</label>

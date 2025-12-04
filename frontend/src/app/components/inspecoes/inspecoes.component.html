@@ -1,0 +1,33 @@
+<div class="container py-4">
+  <h2 class="mb-3">Inspeções {{ colmeiaId ? ('da Colmeia #' + colmeiaId) : '' }}</h2>
+  <div *ngIf="loading" class="alert alert-info">Carregando...</div>
+  <div *ngIf="!loading && !items.length" class="alert alert-warning">Nenhuma inspeção encontrada.</div>
+  <div class="table-responsive" *ngIf="!loading && items.length">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Data/Hora</th>
+          <th>Responsável</th>
+          <th>Cria</th>
+          <th>Mel</th>
+          <th>Polen</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let i of items">
+          <td>{{ i.id }}</td>
+          <td>{{ i.dataHora | date:'short' }}</td>
+          <td>{{ i.responsavel?.nome || i.responsavel?.username }}</td>
+          <td>{{ i.quadrosComCria }}</td>
+          <td>{{ i.quadrosComMel }}</td>
+          <td>{{ i.quadrosComPolen }}</td>
+          <td><a [routerLink]="['/inspecoes', i.id]" class="btn btn-sm btn-outline-primary">Detalhes</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <a routerLink="/dashboard" class="btn btn-secondary">Voltar ao Dashboard</a>
+</div>
+

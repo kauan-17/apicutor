@@ -45,10 +45,10 @@ export class ApiarioEditarComponent {
     this.saving = true;
     const payload = {
       nome: this.nome.trim(),
-      localizacao: this.localizacaoStr.trim() || null,
-      latitude: this.latitude ?? null,
-      longitude: this.longitude ?? null,
-      descricao: this.descricao.trim() || null
+      localizacao: this.localizacaoStr.trim() || undefined,
+      latitude: this.latitude ?? undefined,
+      longitude: this.longitude ?? undefined,
+      descricao: this.descricao.trim() || undefined
     };
 
     this.apiarioHttp.updateApiario(this.apiarioId, payload).subscribe({

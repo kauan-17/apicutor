@@ -1,0 +1,35 @@
+<div class="container py-4">
+  <h2>Detalhe da Inspeção #{{ id }}</h2>
+  <div *ngIf="loading" class="alert alert-info">Carregando...</div>
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+  <form [formGroup]="form" (ngSubmit)="salvar()" *ngIf="!loading">
+    <div class="mb-3">
+      <label class="form-label">Data/Hora</label>
+      <input class="form-control" formControlName="dataHora" type="datetime-local">
+    </div>
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Quadros com Cria</label>
+        <input class="form-control" formControlName="quadrosComCria" type="number">
+      </div>
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Quadros com Mel</label>
+        <input class="form-control" formControlName="quadrosComMel" type="number">
+      </div>
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Quadros com Pólen</label>
+        <input class="form-control" formControlName="quadrosComPolen" type="number">
+      </div>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Observações</label>
+      <textarea class="form-control" rows="4" formControlName="observacoes"></textarea>
+    </div>
+
+    <button class="btn btn-primary me-2" type="submit" [disabled]="saving">Salvar</button>
+    <button class="btn btn-danger me-2" type="button" (click)="excluir()" [disabled]="saving">Excluir</button>
+    <a routerLink="/inspecoes" class="btn btn-secondary">Voltar</a>
+  </form>
+</div>
+

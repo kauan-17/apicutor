@@ -7,5 +7,5 @@
         "backend/src/main/resources"
     ],
     "java.configuration.updateBuildConfiguration": "automatic",
-    "java.jdt.ls.java.home": "${env:JAVA_HOME}"
+    "java.jdt.ls.java.home": "C:/Program Files/Eclipse Adoptium/jdk-21.0.7.6-hotspot"
 }
