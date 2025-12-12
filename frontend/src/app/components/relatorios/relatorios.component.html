@@ -1,5 +1,121 @@
 <div class="container py-4">
-  <h2 class="mb-3">Relatórios</h2>
-  <div class="alert alert-warning">Página em construção.</div>
-<a routerLink="/dashboard" class="btn btn-secondary">Voltar ao Dashboard</a>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Relatórios de Produção</h2>
+    <a routerLink="/dashboard" class="btn btn-outline-secondary btn-sm">
+      <i class="fas fa-arrow-left me-1"></i>
+      Voltar ao Dashboard
+    </a>
+  </div>
+
+  <!-- Filtros -->
+  <div class="card mb-4">
+    <div class="card-header">Filtros</div>
+    <div class="card-body">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-5">
+          <label class="form-label">Apiário</label>
+          <select class="form-select" [(ngModel)]="selectedApiarioId">
+            <option [ngValue]="null">Todos (Agregado)</option>
+            <option *ngFor="let a of apiarios" [ngValue]="a.id">{{ a.nome }}</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Ano</label>
+          <input type="number" class="form-control" [(ngModel)]="ano" min="2000" max="2100">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Usar mês</label>
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" [(ngModel)]="incluirMes" id="mesSwitch">
+            <label class="form-check-label" for="mesSwitch">Filtrar por mês</label>
+          </div>
+        </div>
+        <div class="col-md-2" *ngIf="incluirMes">
+          <label class="form-label">Mês</label>
+          <select class="form-select" [(ngModel)]="mes">
+            <option [ngValue]="1">Janeiro</option>
+            <option [ngValue]="2">Fevereiro</option>
+            <option [ngValue]="3">Março</option>
+            <option [ngValue]="4">Abril</option>
+            <option [ngValue]="5">Maio</option>
+            <option [ngValue]="6">Junho</option>
+            <option [ngValue]="7">Julho</option>
+            <option [ngValue]="8">Agosto</option>
+            <option [ngValue]="9">Setembro</option>
+            <option [ngValue]="10">Outubro</option>
+            <option [ngValue]="11">Novembro</option>
+            <option [ngValue]="12">Dezembro</option>
+          </select>
+        </div>
+      </div>
+      <div class="mt-3 d-flex gap-2">
+        <button class="btn btn-primary" (click)="carregar()">
+          <span *ngIf="carregando" class="spinner-border spinner-border-sm me-2"></span>
+          <i *ngIf="!carregando" class="fas fa-sync-alt me-2"></i>
+          Carregar
+        </button>
+        <button class="btn btn-outline-secondary" (click)="limparFiltros()">
+          <i class="fas fa-eraser me-2"></i>
+          Limpar filtros
+        </button>
+        <button class="btn btn-outline-success" [disabled]="!resultado.length" (click)="downloadCsv()">
+          <i class="fas fa-file-csv me-2"></i>
+          Exportar CSV
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mensagens -->
+  <div *ngIf="erro" class="alert alert-danger">{{ erro }}</div>
+
+  <!-- Resultado -->
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <span>
+        Resultado
+        <small class="text-muted ms-2">{{ resumoFiltros() }}</small>
+      </span>
+      <span class="badge bg-primary">Total: {{ totalKg() | number:'1.1-1' }} kg</span>
+    </div>
+    <div class="card-body p-0">
+      <div *ngIf="carregando" class="p-3">
+        <div class="placeholder-glow">
+          <span class="placeholder col-12 mb-2"></span>
+          <span class="placeholder col-10 mb-2"></span>
+          <span class="placeholder col-8"></span>
+        </div>
+      </div>
+      <table class="table mb-0" *ngIf="!carregando">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th class="text-end">Kg</th>
+            <th class="text-end" style="width: 280px;">
+              <div class="d-flex justify-content-end gap-2">
+                <select class="form-select form-select-sm" [(ngModel)]="sortCampo" (change)="atualizarOrdenacao()" style="max-width: 140px;">
+                  <option [ngValue]="'kg'">Ordenar por: Kg</option>
+                  <option [ngValue]="'item'">Ordenar por: Item</option>
+                </select>
+                <select class="form-select form-select-sm" [(ngModel)]="sortDirecao" (change)="atualizarOrdenacao()" style="max-width: 120px;">
+                  <option [ngValue]="'desc'">Descendente</option>
+                  <option [ngValue]="'asc'">Ascendente</option>
+                </select>
+              </div>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let r of resultado">
+            <td>{{ r.item }}</td>
+            <td class="text-end">{{ r.kg | number:'1.1-1' }}</td>
+            <td></td>
+          </tr>
+          <tr *ngIf="!resultado.length">
+            <td colspan="2" class="text-center text-muted py-3">Nenhum dado para os filtros selecionados.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>

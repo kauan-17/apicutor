@@ -19,7 +19,6 @@ import { ColmeiasComponent } from './components/colmeias/colmeias.component';
 import { ProducaoComponent } from './components/producao/producao.component';
 import { RelatoriosComponent } from './components/relatorios/relatorios.component';
 import { InspecaoNovaComponent } from './components/inspecoes/inspecao-nova/inspecao-nova.component';
-import { InspecoesComponent } from './components/inspecoes/inspecoes.component';
 import { InspecaoDetalheComponent } from './components/inspecoes/inspecao-detalhe/inspecao-detalhe.component';
 import { ApiarioNovoComponent } from './components/apiarios/apiario-novo/apiario-novo.component';
 import { ApiarioEditarComponent } from './components/apiarios/apiario-editar/apiario-editar.component';
@@ -59,7 +58,6 @@ export class AcessoNegadoComponent {}
     HttpClientModule,
     RoleVisibilityDirective,
     InspecaoNovaComponent,
-    InspecoesComponent,
     InspecaoDetalheComponent,
     ApiarioNovoComponent,
     ApiarioEditarComponent,
@@ -72,29 +70,29 @@ export class AcessoNegadoComponent {}
     FuncionarioCadastroComponent,
     FuncionariosListaComponent,
     RouterModule.forRoot([
-      { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
+      { path: '', redirectTo: '/home', pathMatch: 'full' },
       { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
-      { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
+      { path: 'home', component: HomeComponent },
       { path: 'acesso-negado', component: AcessoNegadoComponent },
       { path: 'apiarios', component: ApiariosComponent, canActivate: [AuthGuard] },
       { path: 'apiarios/novo', component: ApiarioNovoComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['ROLE_APICULTOR', 'ROLE_ADMIN', 'APICULTOR', 'ADMIN'] } },
       { path: 'apiarios/:id', component: ApiariosComponent, canActivate: [AuthGuard] },
       { path: 'apiarios/:id/editar', component: ApiarioEditarComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['ROLE_APICULTOR', 'ROLE_ADMIN', 'APICULTOR', 'ADMIN'] } },
       { path: 'apiarios/:id/inspecao/nova', component: InspecaoNovaComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['ROLE_APICULTOR', 'ROLE_FUNCIONARIO', 'ROLE_ADMIN', 'APICULTOR', 'FUNCIONARIO', 'ADMIN'] } },
-      { path: 'inspecoes', component: InspecoesComponent, canActivate: [AuthGuard] },
+      { path: 'inspecoes', loadComponent: () => import('./components/inspecoes').then(m => m.InspecoesComponent), canActivate: [AuthGuard] },
       { path: 'inspecoes/:id', component: InspecaoDetalheComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['ROLE_APICULTOR', 'ROLE_FUNCIONARIO', 'ROLE_ADMIN', 'APICULTOR', 'FUNCIONARIO', 'ADMIN'] } },
       { path: 'funcionarios/cadastrar', component: FuncionarioCadastroComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['ROLE_APICULTOR', 'ROLE_ADMIN', 'APICULTOR', 'ADMIN'] } },
       { path: 'funcionarios', component: FuncionariosListaComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['ROLE_APICULTOR', 'ROLE_ADMIN', 'APICULTOR', 'ADMIN'] } },
       { path: 'colmeias', component: ColmeiasComponent, canActivate: [AuthGuard] },
       { path: 'colmeias/nova', component: ColmeiaNovaComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['ROLE_APICULTOR', 'ROLE_ADMIN', 'APICULTOR', 'ADMIN'] } },
       { path: 'colmeias/:id/editar', component: ColmeiaEditarComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['ROLE_APICULTOR', 'ROLE_ADMIN', 'APICULTOR', 'ADMIN'] } },
-      { path: 'colmeias/:id/inspecoes', component: InspecoesComponent, canActivate: [AuthGuard] },
+      { path: 'colmeias/:id/inspecoes', loadComponent: () => import('./components/inspecoes').then(m => m.InspecoesComponent), canActivate: [AuthGuard] },
       { path: 'producao', component: ProducaoComponent, canActivate: [AuthGuard] },
       { path: 'relatorios', component: RelatoriosComponent, canActivate: [AuthGuard] },
       { path: 'login', component: LoginComponent },
       { path: 'register', component: RegisterComponent },
       { path: '**', redirectTo: '/dashboard' }
-    ])
+    ], { anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled' })
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }

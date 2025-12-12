@@ -9,28 +9,9 @@ export class InspecaoService {
 
   constructor(private http: HttpClient) {}
 
-  getAll(): Observable<any[]> {
-    return this.http.get<any[]>(this.baseUrl);
-  }
-
-  getById(id: number): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/${id}`);
-  }
-
-  getByColmeia(colmeiaId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/colmeia/${colmeiaId}`);
-  }
-
-  create(payload: any): Observable<any> {
-    return this.http.post<any>(this.baseUrl, payload);
-  }
-
-  update(id: number, payload: any): Observable<any> {
-    return this.http.put<any>(`${this.baseUrl}/${id}`, payload);
-  }
-
-  delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/${id}`);
-  }
+  listAll(): Observable<any[]> { return this.http.get<any[]>(this.baseUrl); }
+  getById(id: number): Observable<any> { return this.http.get<any>(`${this.baseUrl}/${id}`); }
+  create(payload: any): Observable<any> { return this.http.post<any>(this.baseUrl, payload); }
+  update(id: number, payload: any): Observable<any> { return this.http.put<any>(`${this.baseUrl}/${id}`, payload); }
+  delete(id: number): Observable<void> { return this.http.delete<void>(`${this.baseUrl}/${id}`); }
 }
-

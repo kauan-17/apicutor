@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable, of, Subject } from 'rxjs';
 import { delay } from 'rxjs/operators';
 
 export interface Localizacao {
@@ -116,13 +116,8 @@ export class ApiariosService {
   };
 
   private inspecoesPorApiario: Record<number, Inspecao[]> = {
-    1: [
-      { id: 1, data: new Date().toISOString(), responsavel: 'João', observacoes: 'Sem sinais de infestação.', colmeiasVerificadas: 12 },
-      { id: 2, data: new Date(Date.now() - 7 * 86400000).toISOString(), responsavel: 'Ana', observacoes: 'Aplicado alimentador em 5 colmeias.', colmeiasVerificadas: 10 }
-    ],
-    2: [
-      { id: 3, data: new Date(Date.now() - 2 * 86400000).toISOString(), responsavel: 'Carlos', observacoes: 'Reforço em caixas V-01 e V-02.', colmeiasVerificadas: 8 }
-    ]
+    1: [],
+    2: []
   };
 
   private tarefasPorApiario: Record<number, Tarefa[]> = {
@@ -144,6 +139,8 @@ export class ApiariosService {
       { id: 3, tipo: 'Produção', mensagem: 'Alta produção no mês atual.', nivel: 'Info' }
     ]
   };
+
+  tarefasChanged$ = new Subject<void>();
 
   getApiarios(): Observable<Apiario[]> {
     return of(this.apiarios).pipe(delay(300));
@@ -202,6 +199,23 @@ export class ApiariosService {
 
   getTarefas(apiarioId: number): Observable<Tarefa[]> {
     return of(this.tarefasPorApiario[apiarioId] ?? []).pipe(delay(200));
+  }
+
+  createTarefa(apiarioId: number, input: { titulo: string; prazo?: string; status?: 'Pendente' | 'Em andamento' | 'Concluída' }): Observable<Tarefa> {
+    if (!this.tarefasPorApiario[apiarioId]) {
+      this.tarefasPorApiario[apiarioId] = [];
+    }
+    const nextId = Math.max(0, ...this.tarefasPorApiario[apiarioId].map(t => t.id)) + 1;
+    const novo: Tarefa = {
+      id: nextId,
+      titulo: input.titulo,
+      prazo: input.prazo,
+      status: input.status ?? 'Pendente'
+    };
+    this.tarefasPorApiario[apiarioId] = [novo, ...this.tarefasPorApiario[apiarioId]];
+    // Notifica interessados (ex.: Dashboard) para reavaliar próxima tarefa
+    setTimeout(() => this.tarefasChanged$.next(), 0);
+    return of(novo).pipe(delay(200));
   }
 
   getAlertas(apiarioId: number): Observable<Alerta[]> {

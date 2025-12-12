@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { InspecaoService } from '../../services/inspecao.service';
 
 @Component({
@@ -10,25 +10,20 @@ import { InspecaoService } from '../../services/inspecao.service';
   templateUrl: './inspecoes.component.html',
   styleUrls: []
 })
-export class InspecoesComponent implements OnInit {
+export class InspecoesComponent {
   loading = true;
-  items: any[] = [];
-  colmeiaId?: number;
+  error?: string;
+  inspecoes: any[] = [];
 
-  constructor(private route: ActivatedRoute, private service: InspecaoService) {}
+  constructor(private service: InspecaoService) {
+    this.carregar();
+  }
 
-  ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
-      const idParam = params.get('id');
-      this.colmeiaId = idParam ? Number(idParam) : undefined;
-      this.load();
+  carregar(): void {
+    this.loading = true; this.error = undefined;
+    this.service.listAll().subscribe({
+      next: (res) => { this.inspecoes = res ?? []; this.loading = false; },
+      error: () => { this.error = 'Falha ao carregar inspeções'; this.loading = false; }
     });
   }
-
-  load(): void {
-    this.loading = true;
-    const obs = this.colmeiaId ? this.service.getByColmeia(this.colmeiaId) : this.service.getAll();
-    obs.subscribe({ next: (res) => { this.items = res ?? []; this.loading = false; }, error: () => { this.items = []; this.loading = false; } });
-  }
 }
-

@@ -24,12 +24,36 @@
             <input type="text" class="form-control" [(ngModel)]="endereco" name="endereco" />
           </div>
           <div class="col-md-3">
+            <label class="form-label">CEP (Correios)</label>
+            <div class="input-group">
+              <input type="text" class="form-control" [(ngModel)]="cep" name="cep" placeholder="00000-000" />
+              <button type="button" class="btn btn-outline-secondary" (click)="buscarEnderecoPorCEP()">Buscar</button>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Setor</label>
+            <input type="text" class="form-control" [(ngModel)]="setor" name="setor" />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Complemento</label>
+            <input type="text" class="form-control" [(ngModel)]="complemento" name="complemento" />
+          </div>
+          <div class="col-md-3">
             <label class="form-label">Cidade</label>
             <input type="text" class="form-control" [(ngModel)]="cidade" name="cidade" />
           </div>
           <div class="col-md-3">
             <label class="form-label">Estado</label>
             <input type="text" class="form-control" [(ngModel)]="estado" name="estado" />
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Latitude</label>
+            <input type="number" step="any" class="form-control" [(ngModel)]="latitude" name="latitude" required />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Longitude</label>
+            <input type="number" step="any" class="form-control" [(ngModel)]="longitude" name="longitude" required />
           </div>
 
           <div class="col-md-3">
@@ -41,12 +65,8 @@
             <div class="form-text">O mapa usa o endereço acima.</div>
           </div>
 
-          <div class="col-12" *ngIf="mapsReady">
-            <div style="height: 300px;" class="border rounded">
-              <google-map [center]="mapCenter" [zoom]="mapZoom" height="300px" width="100%">
-                <map-marker *ngIf="markerPosition" [position]="markerPosition"></map-marker>
-              </google-map>
-            </div>
+          <div class="col-12">
+            <div #leafletNovoMap style="height: 300px;" class="border rounded"></div>
           </div>
           <div class="col-12">
             <label class="form-label">Descrição</label>

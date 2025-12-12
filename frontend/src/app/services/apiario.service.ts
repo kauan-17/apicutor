@@ -14,6 +14,13 @@ export interface Apiario {
   colmeias?: any[];
 }
 
+export interface Tarefa {
+  id: number;
+  titulo: string;
+  prazo?: string;
+  status: 'Pendente' | 'Em andamento' | 'Concluída';
+}
+
 @Injectable({ providedIn: 'root' })
 export class ApiarioService {
   private baseUrl = `${environment.apiUrl}/apiarios`;
@@ -60,5 +67,14 @@ export class ApiarioService {
 
   deleteApiario(id: number): Observable<void> {
     return this.delete(id);
+  }
+
+  // Tarefas (backend)
+  getTarefas(apiarioId: number): Observable<Tarefa[]> {
+    return this.http.get<Tarefa[]>(`${environment.apiUrl}/tarefas`, { params: { apiarioId } as any });
+  }
+
+  createTarefa(input: { apiarioId: number; titulo: string; prazo?: string; status?: 'Pendente' | 'Em andamento' | 'Concluída' }): Observable<Tarefa> {
+    return this.http.post<Tarefa>(`${environment.apiUrl}/tarefas`, input);
   }
 }

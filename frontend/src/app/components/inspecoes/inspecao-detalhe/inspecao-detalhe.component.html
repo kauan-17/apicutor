@@ -1,35 +1,42 @@
 <div class="container py-4">
-  <h2>Detalhe da Inspeção #{{ id }}</h2>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Detalhe da Inspeção #{{ id }}</h2>
+    <a routerLink="/inspecoes" class="btn btn-outline-secondary btn-sm">Voltar</a>
+  </div>
+
   <div *ngIf="loading" class="alert alert-info">Carregando...</div>
   <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
 
   <form [formGroup]="form" (ngSubmit)="salvar()" *ngIf="!loading">
-    <div class="mb-3">
-      <label class="form-label">Data/Hora</label>
-      <input class="form-control" formControlName="dataHora" type="datetime-local">
-    </div>
-    <div class="row">
-      <div class="col-md-4 mb-3">
-        <label class="form-label">Quadros com Cria</label>
-        <input class="form-control" formControlName="quadrosComCria" type="number">
+    <div class="card mb-3">
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label">Data/Hora</label>
+            <input type="datetime-local" class="form-control" formControlName="dataHora" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Quadros com cria</label>
+            <input type="number" class="form-control" formControlName="quadrosComCria" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Quadros com mel</label>
+            <input type="number" class="form-control" formControlName="quadrosComMel" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Quadros com pólen</label>
+            <input type="number" class="form-control" formControlName="quadrosComPolen" />
+          </div>
+          <div class="col-12">
+            <label class="form-label">Observações</label>
+            <textarea rows="4" class="form-control" formControlName="observacoes"></textarea>
+          </div>
+        </div>
+        <div class="mt-3 d-flex gap-2">
+          <button type="submit" class="btn btn-primary" [disabled]="saving">Salvar</button>
+          <button type="button" class="btn btn-danger" (click)="excluir()" [disabled]="saving">Excluir</button>
+        </div>
       </div>
-      <div class="col-md-4 mb-3">
-        <label class="form-label">Quadros com Mel</label>
-        <input class="form-control" formControlName="quadrosComMel" type="number">
-      </div>
-      <div class="col-md-4 mb-3">
-        <label class="form-label">Quadros com Pólen</label>
-        <input class="form-control" formControlName="quadrosComPolen" type="number">
-      </div>
     </div>
-    <div class="mb-3">
-      <label class="form-label">Observações</label>
-      <textarea class="form-control" rows="4" formControlName="observacoes"></textarea>
-    </div>
-
-    <button class="btn btn-primary me-2" type="submit" [disabled]="saving">Salvar</button>
-    <button class="btn btn-danger me-2" type="button" (click)="excluir()" [disabled]="saving">Excluir</button>
-    <a routerLink="/inspecoes" class="btn btn-secondary">Voltar</a>
   </form>
 </div>
-

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../auth.service';
 
 @Component({
@@ -14,16 +14,22 @@ export class LoginComponent {
   error = '';
   loading = false;
   submitted = false;
+  private returnUrl = '/dashboard';
 
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     this.loginForm = this.formBuilder.group({
       username: ['', Validators.required],
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
+    const ru = this.route.snapshot.queryParamMap.get('returnUrl');
+    if (ru && typeof ru === 'string' && ru.trim()) {
+      this.returnUrl = ru;
+    }
   }
 
   get f() { return this.loginForm.controls; }
@@ -42,7 +48,8 @@ export class LoginComponent {
 
     this.authService.login(username, password).subscribe({
       next: () => {
-        this.router.navigate(['/dashboard']);
+        this.loading = false;
+        this.router.navigateByUrl(this.returnUrl);
       },
       error: (err: any) => {
         this.error = err.error?.message || 'Falha no login. Verifique suas credenciais.';

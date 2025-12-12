@@ -18,8 +18,13 @@ export class ProducaoService {
   delete(id: number): Observable<void> { return this.http.delete<void>(`${this.baseUrl}/${id}`); }
 
   // Relatórios
-  producaoMensal(apiarioId: number, ano: number): Observable<Record<string, number>> {
-    return this.http.get<Record<string, number>>(`${this.relatoriosUrl}/producao/mensal/${apiarioId}/${ano}`);
+  producaoMensal(apiarioId: number, ano: number, mes?: number): Observable<Record<string, number>> {
+    const url = `${this.relatoriosUrl}/producao/mensal/${apiarioId}/${ano}` + (mes ? `?mes=${mes}` : '');
+    return this.http.get<Record<string, number>>(url);
+  }
+
+  producaoMensalTotal(ano: number, mes?: number): Observable<Record<string, number>> {
+    const url = `${this.relatoriosUrl}/producao/mensal/total/${ano}` + (mes ? `?mes=${mes}` : '');
+    return this.http.get<Record<string, number>>(url);
   }
 }
-

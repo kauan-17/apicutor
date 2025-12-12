@@ -1,49 +1,62 @@
 <div class="container py-4">
-  <h2>Funcionários</h2>
-  <div class="mb-3">
-    <label class="form-label">Selecionar Apiário</label>
-    <select class="form-select" [(ngModel)]="selecionadoApiarioId" (change)="carregarFuncionarios()">
-      <option [ngValue]="undefined">Selecione...</option>
-      <option *ngFor="let a of apiarios" [value]="a.id">{{ a.nome }}</option>
-    </select>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Funcionários</h2>
+    <a routerLink="/dashboard" class="btn btn-outline-secondary btn-sm">Voltar</a>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-6">
+          <label class="form-label">Apiário</label>
+          <select class="form-select" [(ngModel)]="selecionadoApiarioId" (change)="carregarFuncionarios()">
+            <option [ngValue]="undefined">Selecione...</option>
+            <option *ngFor="let a of apiarios" [ngValue]="a.id">{{ a.nome }}</option>
+          </select>
+        </div>
+        <div class="col-md-6 text-end">
+          <button class="btn btn-primary" (click)="carregarFuncionarios()">Carregar</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div *ngIf="loading" class="alert alert-info">Carregando...</div>
   <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
-  <div *ngIf="!loading && selecionadoApiarioId && !funcionarios.length" class="alert alert-warning">Nenhum funcionário alocado neste apiário.</div>
 
-  <div class="table-responsive" *ngIf="!loading && funcionarios.length">
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Nome</th>
-          <th>Username</th>
-          <th>Email</th>
-          <th>Realocar para</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let f of funcionarios">
-          <td>{{ f.id }}</td>
-          <td>{{ f.nome }}</td>
-          <td>{{ f.username }}</td>
-          <td>{{ f.email }}</td>
-          <td>
-            <select class="form-select" [(ngModel)]="realocarPara[f.id]">
-              <option [ngValue]="undefined">Selecione...</option>
-              <option *ngFor="let a of apiarios" [value]="a.id">{{ a.nome }}</option>
-            </select>
-          </td>
-          <td>
-            <button class="btn btn-sm btn-outline-primary" (click)="realocar(f.id, selecionadoApiarioId!)">Realocar</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+  <div class="card" *ngIf="!loading">
+    <div class="card-body p-0">
+      <div *ngIf="funcionarios.length === 0" class="p-3 text-muted">Nenhum funcionário encontrado.</div>
+      <div class="table-responsive" *ngIf="funcionarios.length > 0">
+        <table class="table table-striped mb-0">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Usuário</th>
+              <th>Email</th>
+              <th>Apiário Atual</th>
+              <th class="text-end">Realocar</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let f of funcionarios">
+              <td>{{ f.nome }}</td>
+              <td>{{ f.username }}</td>
+              <td>{{ f.email }}</td>
+              <td>{{ f.apiario?.nome || f.apiarioId }}</td>
+              <td class="text-end">
+                <div class="d-flex justify-content-end gap-2">
+                  <select class="form-select form-select-sm" [(ngModel)]="realocarPara[f.id]">
+                    <option [ngValue]="undefined">Selecione apiário…</option>
+                    <option *ngFor="let a of apiarios" [ngValue]="a.id">{{ a.nome }}</option>
+                  </select>
+                  <button class="btn btn-sm btn-outline-primary" (click)="realocar(f.id, f.apiarioId)">Mover</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
-
-  <a routerLink="/dashboard" class="btn btn-secondary">Voltar ao Dashboard</a>
 </div>
-

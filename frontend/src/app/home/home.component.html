@@ -9,13 +9,14 @@
             <h1 class="hero-title">Bem-vindo ao <span class="text-primary">Apicutor</span></h1>
             <p class="hero-subtitle">Sistema inteligente de gerenciamento para apicultura moderna</p>
             <div class="hero-buttons">
-              <button routerLink="/apiarios" class="btn btn-primary btn-lg me-3">
+              <a routerLink="/apiarios" class="btn btn-primary btn-lg me-3">
                 <i class="fas fa-map-marked-alt me-2"></i>Meus Apiários
-              </button>
-              <button routerLink="/colmeias" class="btn btn-outline-primary btn-lg">
+              </a>
+              <a routerLink="/colmeias" class="btn btn-primary btn-lg">
                 <i class="fas fa-bee me-2"></i>Minhas Colmeias
-              </button>
+              </a>
             </div>
+            <!-- Mensagem de login removida para evitar alerta constante na Home pública -->
           </div>
         </div>
         <div class="col-lg-6">
@@ -47,7 +48,7 @@
   </div>
 
   <!-- Dashboard Content -->
-  <div *ngIf="!carregando" class="dashboard-section">
+  <div *ngIf="!carregando && autenticado" class="dashboard-section">
     <div class="container">
       <!-- Statistics Cards -->
       <div class="row mb-5">
@@ -69,7 +70,12 @@
         <div class="col-lg-3 col-md-6 mb-4">
           <div class="stat-card">
             <div class="stat-icon bg-success">
-              <i class="fas fa-bee"></i>
+              <svg class="icon-hive" viewBox="0 0 64 64" aria-hidden="true">
+                <rect x="14" y="14" width="36" height="10" rx="5" ry="5" fill="none" stroke="#ffffff" stroke-width="2"/>
+                <rect x="12" y="26" width="40" height="10" rx="5" ry="5" fill="none" stroke="#ffffff" stroke-width="2"/>
+                <rect x="14" y="38" width="36" height="10" rx="5" ry="5" fill="none" stroke="#ffffff" stroke-width="2"/>
+                <circle cx="32" cy="33" r="3" fill="#ffffff"/>
+              </svg>
             </div>
             <div class="stat-content">
               <h3 class="stat-number">{{colmeias.length}}</h3>
@@ -84,11 +90,14 @@
         <div class="col-lg-3 col-md-6 mb-4">
           <div class="stat-card">
             <div class="stat-icon bg-warning">
-              <i class="fas fa-jar"></i>
+              <svg class="icon-honey" viewBox="0 0 64 64" aria-hidden="true">
+                <path d="M22 14 h20 a4 4 0 0 1 4 4 v6 a10 10 0 0 1 -10 10 h-8 a10 10 0 0 1 -10 -10 v-6 a4 4 0 0 1 4 -4 z" fill="none" stroke="#ffffff" stroke-width="2"/>
+                <path d="M32 34 c0 10 -8 10 -8 18 a8 8 0 0 0 16 0 c0 -8 -8 -8 -8 -18 z" fill="#ffffff"/>
+              </svg>
             </div>
             <div class="stat-content">
               <h3 class="stat-number">{{producaoTotal}}</h3>
-              <p class="stat-label">Kg de Mel</p>
+              <p class="stat-label">Kg de Mel ({{mesAtual}}/{{anoAtual}})</p>
             </div>
             <div class="stat-decoration">
               <div class="hex-small"></div>
@@ -121,7 +130,7 @@
               <h4 class="card-title">
                 <i class="fas fa-map-marked-alt me-2"></i>Meus Apiários
               </h4>
-              <button *appHasRoleAny="['ROLE_APICULTOR','ROLE_ADMIN']" routerLink="/apiarios/novo" class="btn btn-outline-primary btn-sm">
+              <button *appHasRoleAny="['ROLE_APICULTOR','ROLE_ADMIN']" routerLink="/apiarios/novo" class="btn btn-primary btn-sm">
                 <i class="fas fa-plus me-1"></i>Novo Apiário
               </button>
             </div>
@@ -129,9 +138,9 @@
               <div *ngIf="apiarios.length === 0" class="empty-state">
                 <i class="fas fa-map-marked-alt empty-icon"></i>
                 <p class="empty-text">Nenhum apiário cadastrado ainda</p>
-                <button *appHasRoleAny="['ROLE_APICULTOR','ROLE_ADMIN']" routerLink="/apiarios/novo" class="btn btn-primary">
+                <a *appHasRoleAny="['ROLE_APICULTOR','ROLE_ADMIN']" routerLink="/apiarios/novo" class="btn btn-primary">
                   <i class="fas fa-plus me-2"></i>Adicionar Primeiro Apiário
-                </button>
+                </a>
               </div>
               
               <div *ngIf="apiarios.length > 0" class="apiarios-grid">
@@ -149,7 +158,7 @@
                     </div>
                   </div>
                   <div class="apiario-actions">
-                    <button class="btn btn-outline-primary btn-sm" [routerLink]="['/apiarios', apiario?.id]">
+                    <button class="btn btn-primary btn-sm" [routerLink]="['/apiarios', apiario?.id]">
                       <i class="fas fa-eye"></i>
                     </button>
                   </div>
@@ -166,7 +175,7 @@
               <h4 class="card-title">
                 <i class="fas fa-bee me-2"></i>Colmeias Recentes
               </h4>
-              <button routerLink="/colmeias" class="btn btn-outline-success btn-sm">
+              <button routerLink="/colmeias" class="btn btn-success btn-sm">
                 <i class="fas fa-plus me-1"></i>Nova
               </button>
             </div>
@@ -174,9 +183,9 @@
               <div *ngIf="colmeias.length === 0" class="empty-state">
                 <i class="fas fa-bee empty-icon"></i>
                 <p class="empty-text">Nenhuma colmeia cadastrada</p>
-                <button routerLink="/colmeias" class="btn btn-success">
+                <a routerLink="/colmeias" class="btn btn-success">
                   <i class="fas fa-plus me-2"></i>Adicionar Colmeia
-                </button>
+                </a>
               </div>
               
               <div *ngIf="colmeias.length > 0" class="colmeias-list">
@@ -199,9 +208,9 @@
               </div>
               
               <div *ngIf="colmeias.length > 5" class="text-center mt-3">
-<button routerLink="/colmeias" class="btn btn-secondary btn-sm">
+                <a routerLink="/colmeias" class="btn btn-secondary btn-sm">
                   Ver todas as colmeias
-                </button>
+                </a>
               </div>
             </div>
           </div>
@@ -217,28 +226,28 @@
             </h4>
             <div class="row">
               <div class="col-md-3 col-sm-6 mb-3">
-                <button *appHasRoleAny="['ROLE_APICULTOR','ROLE_ADMIN']" routerLink="/apiarios" class="btn btn-outline-primary btn-action w-100">
+                <a *appHasRoleAny="['ROLE_APICULTOR','ROLE_ADMIN']" routerLink="/apiarios" class="btn btn-primary btn-action w-100">
                   <i class="fas fa-map-marker-alt d-block mb-2"></i>
                   <span>Adicionar Apiário</span>
-                </button>
+                </a>
               </div>
               <div class="col-md-3 col-sm-6 mb-3">
-                <button routerLink="/colmeias" class="btn btn-outline-success btn-action w-100">
+                <a routerLink="/colmeias" class="btn btn-success btn-action w-100">
                   <i class="fas fa-bee d-block mb-2"></i>
-                  <span>Gerenciar Colmeias</span>
-                </button>
+                  <span>Minhas Colmeias</span>
+                </a>
               </div>
               <div class="col-md-3 col-sm-6 mb-3">
-                <button routerLink="/producao" class="btn btn-outline-warning btn-action w-100">
+                <a routerLink="/producao" class="btn btn-warning btn-action w-100">
                   <i class="fas fa-chart-line d-block mb-2"></i>
                   <span>Registrar Produção</span>
-                </button>
+                </a>
               </div>
               <div class="col-md-3 col-sm-6 mb-3">
-                <button routerLink="/relatorios" class="btn btn-outline-info btn-action w-100">
+                <a routerLink="/relatorios" class="btn btn-info btn-action w-100">
                   <i class="fas fa-file-alt d-block mb-2"></i>
                   <span>Ver Relatórios</span>
-                </button>
+                </a>
               </div>
             </div>
           </div>
@@ -246,4 +255,128 @@
       </div>
     </div>
   </div>
+
+  <!-- Public Explore Section for Visitors -->
+  <div *ngIf="!carregando && !autenticado" class="dashboard-section">
+    <div class="container">
+      <div class="row mb-4">
+        <div class="col-12 text-center">
+          <h3 class="mb-2">Explore o Apicutor</h3>
+          <p class="text-muted">Entre ou crie uma conta para liberar todos os recursos.</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-4 mb-4">
+          <div class="stat-card">
+            <div class="stat-icon bg-primary">
+              <i class="fas fa-user-plus"></i>
+            </div>
+            <div class="stat-content">
+              <h4 class="stat-number">Cadastro</h4>
+              <p class="stat-label">Crie sua conta</p>
+            </div>
+            <div class="p-3 text-center">
+              <a routerLink="/register" class="btn btn-primary btn-sm">Criar conta</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-4">
+          <div class="stat-card">
+            <div class="stat-icon bg-success">
+              <i class="fas fa-sign-in-alt"></i>
+            </div>
+            <div class="stat-content">
+              <h4 class="stat-number">Login</h4>
+              <p class="stat-label">Acesse seus dados</p>
+            </div>
+            <div class="p-3 text-center">
+              <a routerLink="/login" class="btn btn-success btn-sm">Entrar</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-4">
+          <div class="stat-card">
+            <div class="stat-icon bg-info">
+              <i class="fas fa-info-circle"></i>
+            </div>
+            <div class="stat-content">
+              <h4 class="stat-number">Recursos</h4>
+              <p class="stat-label">Conheça o sistema</p>
+            </div>
+            <div class="p-3 text-center">
+              <button type="button" (click)="toggleRecursos()" class="btn btn-info btn-sm">Ver recursos</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Recursos Section (Anchor target: #recursos) -->
+  <section id="recursos" class="resources-section py-5" *ngIf="mostrarRecursos">
+    <div class="container">
+      <div class="row mb-4">
+        <div class="col-12 text-center">
+          <h3 class="mb-2">Recursos do Apicutor</h3>
+          <p class="text-muted">Conheça os principais recursos disponíveis no sistema.</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          <div class="stat-card h-100">
+            <div class="stat-icon bg-primary"><i class="fas fa-map-marked-alt"></i></div>
+            <div class="stat-content">
+              <h5 class="stat-number">Apiários</h5>
+              <p class="stat-label">Cadastro e localização</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="stat-card h-100">
+            <div class="stat-icon bg-success"><i class="fas fa-bee"></i></div>
+            <div class="stat-content">
+              <h5 class="stat-number">Colmeias</h5>
+              <p class="stat-label">Inspeções e status</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="stat-card h-100">
+            <div class="stat-icon bg-warning"><i class="fas fa-jar"></i></div>
+            <div class="stat-content">
+              <h5 class="stat-number">Produção</h5>
+              <p class="stat-label">Registro mensal</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="stat-card h-100">
+            <div class="stat-icon bg-info"><i class="fas fa-file-alt"></i></div>
+            <div class="stat-content">
+              <h5 class="stat-number">Relatórios</h5>
+              <p class="stat-label">Exportação e análise</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="stat-card h-100" routerLink="/tarefas" style="cursor: pointer;">
+            <div class="stat-icon bg-secondary"><i class="fas fa-tasks"></i></div>
+            <div class="stat-content">
+              <h5 class="stat-number">Tarefas</h5>
+              <p class="stat-label">Planejamento e alertas</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="stat-card h-100">
+            <div class="stat-icon bg-dark"><i class="fas fa-cloud-sun"></i></div>
+            <div class="stat-content">
+              <h5 class="stat-number">Clima & Mapa</h5>
+              <p class="stat-label">Condições e localização</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 </div>

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ApiariosService } from '../../../services/apiarios.service';
+import { ColmeiaService } from '../../../services/colmeia.service';
 
 @Component({
   selector: 'app-inspecao-nova',
@@ -17,21 +18,41 @@ export class InspecaoNovaComponent {
   data = new Date().toISOString().substring(0, 10);
   observacoes = '';
   colmeiasVerificadas = 0;
+  colmeias: any[] = [];
+  selecionadas: number[] = [];
+  observacaoPorColmeia: Record<number, string> = {};
   feedback?: string;
 
-  constructor(private route: ActivatedRoute, private router: Router, private apiariosService: ApiariosService) {
+  constructor(private route: ActivatedRoute, private router: Router, private apiariosService: ApiariosService, private colmeiaService: ColmeiaService) {
     this.route.params.subscribe(p => {
       const id = +p['id'];
       this.apiarioId = id || 1;
+      this.carregarColmeias();
     });
   }
 
+  carregarColmeias(): void {
+    this.colmeiaService.getColmeiasByApiario(this.apiarioId).subscribe({
+      next: (items) => { this.colmeias = items || []; },
+      error: () => { this.colmeias = []; }
+    });
+  }
+
+  toggleSelecionada(id: number, checked: boolean): void {
+    const set = new Set<number>(this.selecionadas);
+    if (checked) set.add(id); else set.delete(id);
+    this.selecionadas = Array.from(set);
+    this.colmeiasVerificadas = this.selecionadas.length;
+  }
+
   salvar() {
-    const payload = {
+    const payload: any = {
       data: this.data,
       responsavel: this.responsavel || 'Usuário',
       observacoes: this.observacoes,
-      colmeiasVerificadas: this.colmeiasVerificadas || 0
+      colmeiasVerificadas: this.selecionadas.length,
+      colmeiaIdsVerificadas: this.selecionadas,
+      observacoesPorColmeia: this.observacaoPorColmeia
     };
     this.apiariosService.createInspecao(this.apiarioId, payload).subscribe({
       next: () => {

@@ -1,26 +1,36 @@
 <div class="container py-4">
-  <h2>Editar Colmeia #{{ id }}</h2>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Editar Colmeia #{{ id }}</h2>
+    <a routerLink="/colmeias" class="btn btn-outline-secondary btn-sm">Voltar</a>
+  </div>
+
   <div *ngIf="loading" class="alert alert-info">Carregando...</div>
   <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
 
   <form [formGroup]="form" (ngSubmit)="salvar()" *ngIf="!loading">
-    <div class="mb-3">
-      <label class="form-label">Nome</label>
-      <input class="form-control" formControlName="nome" />
+    <div class="card">
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Nome</label>
+            <input class="form-control" type="text" formControlName="nome" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Apiário</label>
+            <select class="form-select" formControlName="apiarioId">
+              <option [ngValue]="null">Selecione...</option>
+              <option *ngFor="let a of apiarios" [ngValue]="a.id">{{ a.nome }}</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Ativa</label>
+            <input class="form-check-input ms-2" type="checkbox" formControlName="ativa" />
+          </div>
+        </div>
+        <div class="mt-3">
+          <button class="btn btn-primary" type="submit" [disabled]="saving || form.invalid">Salvar</button>
+        </div>
+      </div>
     </div>
-    <div class="mb-3">
-      <label class="form-label">Apiário</label>
-      <select class="form-select" formControlName="apiarioId">
-        <option [ngValue]="null">Selecione...</option>
-        <option *ngFor="let a of apiarios" [value]="a.id">{{ a.nome }}</option>
-      </select>
-    </div>
-    <div class="form-check mb-3">
-      <input type="checkbox" class="form-check-input" id="ativa" formControlName="ativa" />
-      <label class="form-check-label" for="ativa">Ativa</label>
-    </div>
-    <button class="btn btn-primary me-2" type="submit" [disabled]="saving">Salvar</button>
-    <a routerLink="/colmeias" class="btn btn-secondary">Cancelar</a>
   </form>
 </div>
-

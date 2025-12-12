@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../auth/auth.service';
-import { ApiarioService, Apiario } from '../../services/apiario.service';
+import { ApiarioService, Apiario, Tarefa } from '../../services/apiario.service';
+import { ApiariosService } from '../../services/apiarios.service';
 import { ColmeiaService } from '../../services/colmeia.service';
 import { ProducaoService } from '../../services/producao.service';
 import { forkJoin, of } from 'rxjs';
@@ -25,16 +26,28 @@ export class DashboardComponent implements OnInit {
   userName = '';
   monthLabel?: string;
   monthYear?: number;
+  selectedMonthIndex?: number;
+  selectedYear?: number;
+  productionDetails: { id: number; nome: string; valor: number; erro?: string }[] = [];
+  showAlerts = false;
+  nextTaskInfo?: { tarefa: Tarefa; apiarioId: number; apiarioNome?: string };
+  private apiariosCache: Apiario[] = [];
 
   constructor(
     private authService: AuthService,
     private apiarioService: ApiarioService,
+    private apiariosService: ApiariosService,
     private colmeiaService: ColmeiaService,
     private producaoService: ProducaoService
   ) {}
 
   ngOnInit(): void {
     this.userName = this.authService.getCurrentUser()?.username || 'Usuário';
+    this.apiariosService.tarefasChanged$.subscribe(() => {
+      if (this.apiariosCache && this.apiariosCache.length) {
+        this.loadNextTask(this.apiariosCache);
+      }
+    });
     this.loadDashboardData();
   }
 
@@ -53,6 +66,7 @@ export class DashboardComponent implements OnInit {
     this.apiarioService.getApiarios().subscribe({
       next: (apiarios: Apiario[]) => {
         this.stats.totalApiarios = apiarios.length;
+        this.apiariosCache = apiarios;
         
         // Contar colmeias de todos os apiários
         let totalColmeias = 0;
@@ -63,6 +77,7 @@ export class DashboardComponent implements OnInit {
         
         // Produção real do mês atual (soma de todos os apiários)
         this.loadMonthlyProduction(apiarios);
+        this.loadNextTask(apiarios);
         
         // Alertas: ainda sem backend, mantém simulação leve
         this.stats.alertasPendentes = Math.floor(Math.random() * 5);
@@ -78,6 +93,9 @@ export class DashboardComponent implements OnInit {
   }
 
   refreshData(): void {
+    if (this.loading) {
+      return; // debounce simples: evita cliques repetidos enquanto carrega
+    }
     this.loadDashboardData();
   }
 
@@ -92,8 +110,8 @@ export class DashboardComponent implements OnInit {
   }
 
   private loadMonthlyProduction(apiarios: Apiario[]): void {
-    const year = new Date().getFullYear();
-    const currentMonthIndex = new Date().getMonth();
+    const year = this.selectedYear ?? new Date().getFullYear();
+    const currentMonthIndex = this.selectedMonthIndex ?? new Date().getMonth();
 
     if (!apiarios || apiarios.length === 0) {
       this.stats.producaoMes = 0;
@@ -109,22 +127,30 @@ export class DashboardComponent implements OnInit {
       return;
     }
 
+    const errorsByApiario: Record<number, string> = {};
     const requests = validApiarios.map(a =>
-      this.producaoService.producaoMensal(a.id, year).pipe(
+      this.producaoService.producaoMensal(a.id, year, currentMonthIndex + 1).pipe(
         catchError(err => {
           console.warn(`[Dashboard] Produção mensal ignorada para apiário ${a.id}: ${this.formatError(err)}`);
+          errorsByApiario[a.id] = this.formatError(err);
           return of({});
         })
       )
     );
     forkJoin(requests).subscribe({
       next: (results: Record<string, number>[]) => {
-        const perApiario = results.map((map, i) => {
+        this.productionDetails = results.map((map, i) => {
           const val = this.extractMonthValue(map, currentMonthIndex);
-          const id = validApiarios[i]?.id;
-          console.debug(`[Dashboard] Apiário ${id} produção no mês atual:`, val, map);
-          return val;
+          const apiario = validApiarios[i];
+          console.debug(`[Dashboard] Apiário ${apiario?.id} produção no mês atual:`, val, map);
+          return {
+            id: apiario.id,
+            nome: apiario.nome,
+            valor: Number(val.toFixed(1)),
+            erro: errorsByApiario[apiario.id]
+          };
         });
+        const perApiario = this.productionDetails.map(d => d.valor);
         let total = perApiario.reduce((sum, v) => sum + v, 0);
         if (total > 0) {
           this.monthLabel = this.ptMonthName(currentMonthIndex);
@@ -160,6 +186,42 @@ export class DashboardComponent implements OnInit {
         // Não derruba o dashboard: mantém produção como 0 e segue
         this.stats.producaoMes = 0;
         this.loading = false;
+      }
+    });
+  }
+
+  private loadNextTask(apiarios: Apiario[]): void {
+    const validApiarios = apiarios.filter(a => a && a.id != null);
+    if (!validApiarios.length) {
+      this.nextTaskInfo = undefined;
+      return;
+    }
+    const requests = validApiarios.map(a => this.apiarioService.getTarefas(a.id).pipe(catchError(() => of([]))));
+    forkJoin(requests).subscribe({
+      next: (tarefasList: Tarefa[][]) => {
+        const candidates: Array<{ tarefa: Tarefa; apiarioId: number; apiarioNome?: string }> = [];
+        tarefasList.forEach((list, i) => {
+          const apiario = validApiarios[i];
+          (list || []).forEach(t => {
+            if (t.status === 'Pendente' || t.status === 'Em andamento') {
+              candidates.push({ tarefa: t, apiarioId: apiario.id, apiarioNome: apiario.nome });
+            }
+          });
+        });
+        candidates.sort((a, b) => {
+          const pa = a.tarefa.prazo ? new Date(a.tarefa.prazo).getTime() : Number.POSITIVE_INFINITY;
+          const pb = b.tarefa.prazo ? new Date(b.tarefa.prazo).getTime() : Number.POSITIVE_INFINITY;
+          const sa = a.tarefa.status === 'Pendente' ? 0 : a.tarefa.status === 'Em andamento' ? 1 : 2;
+          const sb = b.tarefa.status === 'Pendente' ? 0 : b.tarefa.status === 'Em andamento' ? 1 : 2;
+          if (sa !== sb) return sa - sb;
+          return pa - pb;
+        });
+        const first = candidates[0];
+        this.nextTaskInfo = first ? { tarefa: first.tarefa, apiarioId: first.apiarioId, apiarioNome: first.apiarioNome } : undefined;
+      },
+      error: (err) => {
+        console.warn('[Dashboard] Falha ao carregar tarefas:', this.formatError(err));
+        this.nextTaskInfo = undefined;
       }
     });
   }
@@ -209,5 +271,10 @@ export class DashboardComponent implements OnInit {
   private ptMonthName(idx: number): string {
     const months = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
     return months[idx] || '';
+  }
+
+  applyPeriod(): void {
+    // Valida ano e mês selecionados e recarrega
+    this.refreshData();
   }
 }

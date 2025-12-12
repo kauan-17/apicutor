@@ -27,6 +27,10 @@
             <i class="fas fa-clipboard-check me-1"></i>
             Nova Inspeção
           </a>
+          <a class="btn btn-outline-secondary btn-sm" [routerLink]="['/apiarios', selectedId]" [fragment]="'tarefas'" title="Ir para Tarefas">
+            <i class="fas fa-tasks me-1"></i>
+            Tarefas
+          </a>
         </ng-container>
       </div>
       <div class="btn-group" role="group" *ngIf="selectedId">
@@ -46,9 +50,27 @@
   <div *ngIf="!selectedId" class="card mb-4">
     <div class="card-header">Escolha um Apiário</div>
     <div class="card-body">
+      <div class="row mb-3">
+        <div class="col-md-8">
+          <input type="text" class="form-control" [(ngModel)]="buscaTermo" placeholder="Buscar por nome ou localização">
+        </div>
+        <div class="col-md-4 text-end">
+          <span class="text-muted small" *ngIf="apiariosLista?.length">{{ apiariosFiltrados.length }}/{{ apiariosLista.length }} encontrados</span>
+        </div>
+      </div>
+
+      <div *ngIf="carregandoLista" class="mb-2">
+        <div class="placeholder-glow">
+          <span class="placeholder col-12 mb-2"></span>
+          <span class="placeholder col-10 mb-2"></span>
+          <span class="placeholder col-8"></span>
+        </div>
+      </div>
+      <div *ngIf="erroLista" class="alert alert-danger">{{ erroLista }}</div>
+
       <div class="list-group">
         <a class="list-group-item list-group-item-action"
-           *ngFor="let a of apiariosLista"
+           *ngFor="let a of apiariosFiltrados; trackBy: trackByApiario"
            [routerLink]="['/apiarios', a.id]">
           <div class="d-flex justify-content-between align-items-center">
             <div>
@@ -61,14 +83,14 @@
             </a>
           </div>
         </a>
-        <div *ngIf="!apiariosLista?.length" class="text-muted">Nenhum apiário disponível.</div>
+        <div *ngIf="!carregandoLista && !apiariosFiltrados?.length" class="text-muted">Nenhum apiário disponível.</div>
       </div>
     </div>
   </div>
 
   <div *ngIf="feedbackMessage" class="alert alert-success" role="alert">{{ feedbackMessage }}</div>
 
-  <div class="row g-3 mb-4" *ngIf="selectedId">
+  <div class="row g-3 mb-4" *ngIf="selectedId && !carregandoDetalhe">
     <div class="col-md-3">
       <div class="card stat">
         <div class="card-body">
@@ -93,7 +115,7 @@
         </div>
       </div>
     </div>
-    <div class="col-md-3" *ngIf="resumo">
+    <div class="col-md-3" *ngIf="resumo && colmeias?.length">
       <div class="card stat">
         <div class="card-body">
           <div class="label">Mês (kg)</div>
@@ -103,7 +125,7 @@
     </div>
   </div>
 
-  <div class="row g-4" *ngIf="selectedId">
+  <div class="row g-4" *ngIf="selectedId && !carregandoDetalhe">
     <div class="col-lg-8">
       <div class="card mb-4">
         <div class="card-header">Colmeias</div>
@@ -111,20 +133,20 @@
           <table class="table mb-0">
             <thead>
               <tr>
-                <th>Código</th>
-                <th>Rainha</th>
-                <th>Força</th>
+                <th>Identificação</th>
+                <th>Tipo de Abelha</th>
                 <th>Status</th>
-                <th>Último mês (kg)</th>
+                <th>Instalação</th>
+                <th>Melgueiras</th>
               </tr>
             </thead>
             <tbody>
               <tr *ngFor="let c of colmeias">
-                <td>{{ c.codigo }}</td>
-                <td>{{ c.rainhaIdentificada ? 'Identificada' : 'N/D' }}</td>
-                <td>{{ c.forca }}</td>
+                <td>{{ c.identificacao || c.nome || ('Colmeia #' + c.id) }}</td>
+                <td>{{ c.tipoAbelha }}</td>
                 <td>{{ c.status }}</td>
-                <td>{{ c.producaoUltimoMesKg || 0 }}</td>
+                <td>{{ c.dataInstalacao | date:'shortDate' }}</td>
+                <td>{{ (c.quantidadeMelgueiras ?? (c.melgueira ? 1 : 0)) || 0 }}</td>
               </tr>
               <tr *ngIf="!colmeias?.length">
                 <td colspan="5" class="text-center text-muted py-3">Nenhuma colmeia registrada.</td>
@@ -146,10 +168,24 @@
           </ul>
         </div>
       </div>
+
+      <div class="card mb-4" *ngIf="!inspecoes?.length && !colmeias?.length">
+        <div class="card-body text-center text-muted">
+          Este apiário ainda não possui dados. Adicione colmeias ou registre uma inspeção para começar.
+          <div class="mt-3 d-flex justify-content-center gap-2">
+            <a class="btn btn-outline-success btn-sm" routerLink="/colmeias" [queryParams]="{ apiarioId: selectedId }">
+              Gerenciar Colmeias
+            </a>
+            <a class="btn btn-outline-info btn-sm" *appHasRoleAny="['ROLE_APICULTOR','ROLE_FUNCIONARIO','ROLE_ADMIN']" [routerLink]="['/apiarios', selectedId, 'inspecao', 'nova']">
+              Nova Inspeção
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="col-lg-4">
-      <div class="card mb-4" *ngIf="resumo">
+      <div class="card mb-4" *ngIf="resumo && colmeias?.length">
         <div class="card-header">Resumo de Produção</div>
         <div class="card-body">
           <div class="d-flex justify-content-between"><span>Ano (kg)</span><strong>{{ resumo.anoAtualKg }}</strong></div>
@@ -159,7 +195,19 @@
         </div>
       </div>
 
-      <div class="card mb-4" *ngIf="clima">
+      <div class="card mb-4" *ngIf="(!colmeias?.length) && (!resumo || (!resumo.anoAtualKg && !resumo.mesAtualKg))">
+        <div class="card-header">Resumo de Produção</div>
+        <div class="card-body text-center text-muted">
+          Sem dados de produção ainda.
+          <div class="mt-2">
+            <a class="btn btn-outline-warning btn-sm" routerLink="/producao" [queryParams]="{ apiarioId: selectedId }">
+              Registrar Produção
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-4" *ngIf="clima && apiario?.latitude && apiario?.longitude">
         <div class="card-header">Clima</div>
         <div class="card-body d-flex align-items-center gap-3">
           <div class="temp">{{ clima.temperaturaC }}°C</div>
@@ -170,10 +218,41 @@
         </div>
       </div>
 
-      <div class="card mb-4" *ngIf="tarefas?.length">
+      <div class="card mb-4" *ngIf="!apiario?.latitude || !apiario?.longitude">
+        <div class="card-header">Clima</div>
+        <div class="card-body text-muted">
+          Localização não configurada. Edite o apiário para adicionar latitude/longitude e habilitar o clima.
+        </div>
+      </div>
+
+      <div class="card mb-4" id="tarefas">
         <div class="card-header">Tarefas</div>
         <div class="card-body">
-          <ul class="list-group list-group-flush">
+          <div class="row g-3 align-items-end mb-3" *ngIf="selectedId">
+            <div class="col-md-6">
+              <label class="form-label">Título da tarefa</label>
+              <input type="text" class="form-control" [(ngModel)]="novaTarefaTitulo" placeholder="Ex.: revisar colmeia A-03" />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Prazo</label>
+              <input type="date" class="form-control" [(ngModel)]="novaTarefaPrazo" />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Status</label>
+              <select class="form-select" [(ngModel)]="novaTarefaStatus">
+                <option [ngValue]="'Pendente'">Pendente</option>
+                <option [ngValue]="'Em andamento'">Em andamento</option>
+                <option [ngValue]="'Concluída'">Concluída</option>
+              </select>
+            </div>
+            <div class="col-12 text-end">
+              <button class="btn btn-primary" (click)="adicionarTarefa()" [disabled]="!novaTarefaTitulo.trim()">Adicionar Tarefa</button>
+            </div>
+          </div>
+          <div *ngIf="!tarefas?.length" class="text-muted">
+            Nenhuma tarefa cadastrada para este apiário.
+          </div>
+          <ul class="list-group list-group-flush" *ngIf="tarefas?.length">
             <li class="list-group-item" *ngFor="let t of tarefas">
               {{ t.titulo }}
               <div class="small text-muted" *ngIf="t.prazo">Prazo: {{ t.prazo | date:'shortDate' }}</div>
@@ -204,15 +283,16 @@
     </div>
   </div>
 
-  <div class="card mt-3" *ngIf="selectedId">
+  <div class="card mt-3" *ngIf="selectedId && !carregandoDetalhe">
     <div class="card-header">Localização</div>
     <div class="card-body">
-      <google-map *ngIf="mapsReady" [height]="'300px'" [width]="'100%'" [center]="mapCenter" [zoom]="mapZoom">
-        <map-marker [position]="mapCenter" [title]="apiario?.nome || 'Apiário'">
-        </map-marker>
-      </google-map>
-      <div *ngIf="!mapsReady" class="text-muted">Carregando mapa… configure sua chave da API do Google.</div>
+      <div *ngIf="apiario?.latitude && apiario?.longitude" #leafletMap style="height:300px" class="border rounded"></div>
+      <div *ngIf="!apiario?.latitude || !apiario?.longitude" class="text-muted">Localização não disponível para exibir mapa.</div>
       <div class="small text-muted mt-2" *ngIf="apiario">Lat: {{ apiario.latitude }} / Lng: {{ apiario.longitude }}</div>
     </div>
   </div>
 </div>
+  <div *ngIf="selectedId && carregandoDetalhe" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="text-muted mt-2">Carregando dados do apiário...</p>
+  </div>

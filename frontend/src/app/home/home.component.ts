@@ -1,5 +1,11 @@
-import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { ApiarioService, Apiario as ApiarioSrv } from '../services/apiario.service';
+import { ColmeiaService } from '../services/colmeia.service';
+import { ProducaoService } from '../services/producao.service';
+import { AuthService } from '../auth/auth.service';
 
 // Definindo interfaces para os tipos
 interface Apiario {
@@ -22,36 +28,94 @@ interface Colmeia {
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, AfterViewInit {
   apiarios: Apiario[] = [];
   colmeias: Colmeia[] = [];
   producaoTotal = 0;
+  anoAtual = new Date().getFullYear();
+  mesAtual = new Date().getMonth() + 1; // 1-12
   carregando = true;
+  autenticado = false;
+  mostrarRecursos = false;
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private apiarioService: ApiarioService,
+    private colmeiaService: ColmeiaService,
+    private producaoService: ProducaoService,
+    private authService: AuthService,
+    private route: ActivatedRoute
+  ) {}
 
   ngOnInit(): void {
+    this.autenticado = this.authService.isAuthenticated();
     this.carregarDados();
   }
 
+  ngAfterViewInit(): void {
+    // Faz rolagem suave para o fragmento (ex.: #recursos) mesmo sem anchorScrolling global
+    this.route.fragment.subscribe(fragment => {
+      if (!fragment) return;
+      const el = document.getElementById(fragment);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  }
+
   carregarDados(): void {
-    // Simulando dados para demonstração
-    setTimeout(() => {
-      this.apiarios = [
-        { id: 1, nome: 'Apiário Central', colmeias: 15, localizacao: 'Área Central, Fazenda São João' },
-        { id: 2, nome: 'Apiário Norte', colmeias: 12, localizacao: 'Zona Norte, Sítio Verde' },
-        { id: 3, nome: 'Apiário Sul', colmeias: 8, localizacao: 'Região Sul, Chácara Flora' }
-      ];
-
-      this.colmeias = [
-        { id: 1, identificacao: 'C001', tipo: 'Langstroth', status: 'ATIVA' },
-        { id: 2, identificacao: 'C002', tipo: 'Langstroth', status: 'ATIVA' },
-        { id: 3, identificacao: 'C003', tipo: 'Top Bar', status: 'EM_OBSERVACAO' }
-      ];
-
-      this.producaoTotal = 245.5;
+    this.carregando = true;
+    if (!this.autenticado) {
+      // Sem token: não chama backend para evitar 401 e redirecionamento
+      this.apiarios = [];
+      this.colmeias = [];
+      this.producaoTotal = 0;
       this.carregando = false;
-    }, 1000);
+      return;
+    }
+    const ano = this.anoAtual;
+    const mes = this.mesAtual;
+
+    forkJoin({
+      apiarios: this.apiarioService.getApiarios().pipe(
+        catchError(err => {
+          console.warn('[Home] Falha ao carregar apiários:', err);
+          return of([] as ApiarioSrv[]);
+        })
+      ),
+      colmeias: this.colmeiaService.getColmeias().pipe(
+        catchError(err => {
+          console.warn('[Home] Falha ao carregar colmeias:', err);
+          return of([] as Colmeia[]);
+        })
+      ),
+      producao: this.producaoService.producaoMensalTotal(ano, mes).pipe(
+        catchError(err => {
+          console.warn('[Home] Falha ao carregar produção total do mês:', err);
+          return of({} as Record<string, number>);
+        })
+      )
+    }).subscribe(({ apiarios, colmeias, producao }) => {
+      // Mapear apiários para a interface usada no Home
+      this.apiarios = (apiarios || []).map((a: ApiarioSrv) => ({
+        id: a.id,
+        nome: a.nome,
+        colmeias: (a.colmeias?.length ?? a.totalColmeias ?? 0),
+        localizacao: a.localizacao
+      }));
+
+      // Colmeias para lista recente
+      this.colmeias = (colmeias || []).slice(0, 10) as Colmeia[];
+
+      // Produção total do mês selecionado (soma dos valores do objeto retornado)
+      const vals = Object.values(producao || {});
+      const total = vals.reduce((sum, v: any) => {
+        const n = typeof v === 'string' ? parseFloat(v.replace(',', '.')) : v;
+        return sum + (Number.isFinite(n) ? n : 0);
+      }, 0);
+      this.producaoTotal = Number((total || 0).toFixed(1));
+
+      this.carregando = false;
+    });
   }
 
   getActiveColmeiasCount(): number {
@@ -65,5 +129,16 @@ export class HomeComponent implements OnInit {
 
   trackByColmeia(_index: number, colmeia: Colmeia | undefined): number | undefined {
     return colmeia?.id;
+  }
+
+  scrollTo(id: string): void {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  toggleRecursos(): void {
+    this.mostrarRecursos = !this.mostrarRecursos;
   }
 }

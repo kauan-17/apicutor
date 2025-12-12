@@ -89,18 +89,74 @@
 
 /* Ajustando tamanho dos botões para ficarem mais profissionais */
 .hero-buttons .btn {
-  padding: 0.75rem 1.5rem !important;
-  font-size: 1rem !important;
-  font-weight: 600 !important;
-  border-radius: 8px !important;
-  text-transform: none !important;
-  letter-spacing: normal !important;
+  margin-right: 0.75rem !important;
 }
 
 .hero-buttons .btn-lg {
-  padding: 0.875rem 2rem !important;
-  font-size: 1.1rem !important;
+  /* usa o padrão global de .btn-lg definido em styles.css */
 }
+
+  /* Blocos estatísticos alinhados ao padrão do Dashboard */
+  .stat-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(101, 67, 33, 0.1);
+    transition: all 0.3s ease;
+    overflow: hidden;
+    background: rgba(255, 248, 220, 0.9);
+    border: 1px solid rgba(212, 165, 116, 0.2);
+    text-align: center;
+    padding: 1.25rem;
+  }
+  .stat-card:hover { transform: translateY(-5px); }
+  .stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    margin-bottom: 0.75rem;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  }
+.stat-icon i { font-size: 1.4rem; }
+.stat-icon svg { width: 32px; height: 32px; display: inline-block; }
+.icon-hive { filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1)); }
+.icon-honey { filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1)); }
+  .stat-number { font-size: 1.75rem; font-weight: 700; }
+  .stat-label { font-size: 0.95rem; }
+  .hex-small { display: none; }
+
+  /* Cabeçalhos e corpos no padrão de cards globais */
+  .card-header-modern {
+    background: linear-gradient(135deg, var(--primary-color), var(--warning-color));
+    color: #fff;
+    border-radius: 15px 15px 0 0;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .card-body-modern {
+    background: rgba(255, 248, 220, 0.9);
+    padding: 1rem;
+  }
+
+  /* Lista de apiários no padrão list-group */
+  .list-group .apiario-name { font-weight: 600; }
+  .list-group .apiario-location { font-size: 0.85rem; }
+
+  /* Cartão de ações rápidas no padrão de card */
+  .quick-actions-card,
+  .resources-section .card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(101, 67, 33, 0.1);
+    background: rgba(255, 248, 220, 0.9);
+    border: 1px solid rgba(212, 165, 116, 0.2);
+  }
+  .quick-actions-card .btn-action { width: 100%; }
 
 /* Melhorando espaçamento entre seções */
 .dashboard-section {

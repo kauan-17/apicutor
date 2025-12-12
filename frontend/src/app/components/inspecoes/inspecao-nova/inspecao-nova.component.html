@@ -19,11 +19,45 @@
         </div>
         <div class="col-md-4">
           <label class="form-label">Colmeias verificadas</label>
-          <input type="number" class="form-control" [(ngModel)]="colmeiasVerificadas" min="0" />
+          <div class="form-control bg-light">{{ selecionadas.length }} selecionada(s)</div>
         </div>
         <div class="col-12">
           <label class="form-label">Observações</label>
           <textarea class="form-control" rows="4" [(ngModel)]="observacoes" placeholder="Detalhes da inspeção"></textarea>
+        </div>
+      </div>
+      <div class="mt-4">
+        <h5 class="mb-2">Selecione as colmeias inspecionadas</h5>
+        <div class="table-responsive">
+          <table class="table table-striped mb-0">
+            <thead>
+              <tr>
+                <th style="width: 40px;"></th>
+                <th>Identificação</th>
+                <th>Status</th>
+                <th>Observação da inspeção</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let c of colmeias">
+                <td>
+                  <input type="checkbox" class="form-check-input" [checked]="selecionadas.includes(c.id)"
+                         (change)="toggleSelecionada(c.id, $event.target.checked)" />
+                </td>
+                <td>{{ c.identificacao || c.nome || ('Colmeia #' + c.id) }}</td>
+                <td>{{ c.status }}</td>
+                <td>
+                  <input type="text" class="form-control form-control-sm"
+                         [ngModel]="observacaoPorColmeia[c.id]"
+                         (ngModelChange)="observacaoPorColmeia[c.id] = $event"
+                         placeholder="Ex.: quadros verificados, alimentação, observações" />
+                </td>
+              </tr>
+              <tr *ngIf="!colmeias.length">
+                <td colspan="4" class="text-center text-muted py-3">Nenhuma colmeia encontrada para este apiário.</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
       <div class="mt-3 d-flex gap-2">
