@@ -37,14 +37,38 @@ export class ColmeiaNovaComponent implements OnInit {
   salvar(): void {
     if (this.form.invalid) return;
     this.saving = true; this.error = undefined;
+    const hoje = new Date().toISOString().substring(0, 10);
+    const ativa = !!this.form.value.ativa;
     const payload = {
-      nome: this.form.value.nome,
-      ativa: this.form.value.ativa,
-      apiario: { id: this.form.value.apiarioId }
+      apiarioId: this.form.value.apiarioId,
+      identificacao: this.form.value.nome,
+      tipo: 'LANGSTROTH',
+      tipoAbelha: 'EUROPEIA',
+      rainhaStatus: 'NOVA',
+      origemColonia: 'CAPTURA',
+      quantidadeMelgueiras: 0,
+      melgueira: false,
+      dataInstalacao: hoje,
+      status: ativa ? 'ATIVA' : 'INATIVA',
+      observacoes: ''
     };
     this.colmeiaService.createColmeia(payload).subscribe({
       next: () => { this.saving = false; this.router.navigate(['/colmeias']); },
-      error: () => { this.saving = false; this.error = 'Falha ao salvar'; }
+      error: (err) => { this.saving = false; this.error = this.errorMsg(err, 'criar colmeia'); }
     });
+  }
+
+  private errorMsg(err: any, action: string): string {
+    const status = err?.status;
+    const backend =
+      (typeof err?.error === 'string')
+        ? err.error
+        : (err?.error?.error || err?.error?.message || err?.message || '');
+    if (status === 400) return `Campos inválidos (400) ao ${action}. ${backend || ''}`.trim();
+    if (status === 401) return `Sessão expirada ou sem autorização (401) ao ${action}.`;
+    if (status === 403) return `Sem permissão (403) para ${action}. Verifique acesso ao apiário.`;
+    if (status === 404) return `Registro não encontrado (404) ao ${action}.`;
+    if (status) return `Falha (${status}) ao ${action}. ${backend || ''}`.trim();
+    return `Falha ao ${action}. ${backend || ''}`.trim();
   }
 }

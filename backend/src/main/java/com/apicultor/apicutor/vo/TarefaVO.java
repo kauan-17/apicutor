@@ -1,4 +1,4 @@
-package com.apicultor.apicutor.dto;
+package com.apicultor.apicutor.vo;
 
 import com.apicultor.apicutor.model.Tarefa;
 import java.time.LocalDate;
@@ -69,3 +69,4 @@ public class TarefaVO {
         this.createdAt = createdAt;
     }
 }
+

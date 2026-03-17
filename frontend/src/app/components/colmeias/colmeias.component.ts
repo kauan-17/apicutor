@@ -106,6 +106,13 @@ export class ColmeiasComponent implements OnInit {
     return opt ? opt.label : v;
   }
 
+  apiarioNome(apiarioId: number | null | undefined): string {
+    const id = Number(apiarioId);
+    if (!Number.isFinite(id)) return '-';
+    const a = (this.apiarios || []).find(x => x?.id === id);
+    return a?.nome || `#${id}`;
+  }
+
   getQuantidadeMelgueiras(c: any): number {
     if (!c) return 0;
     const raw = c.quantidadeMelgueiras ?? (c.melgueira ? 1 : 0);
@@ -183,7 +190,7 @@ export class ColmeiasComponent implements OnInit {
       dataInstalacao: this.form.value.dataInstalacao,
       status: this.form.value.status,
       observacoes: this.form.value.observacoes,
-      apiario: { id: this.selectedApiarioId }
+      apiarioId: this.selectedApiarioId
     };
 
     this.loading = true;
@@ -209,9 +216,7 @@ export class ColmeiasComponent implements OnInit {
       },
       error: (err) => {
         this.loading = false;
-        this.error = isEdit
-          ? 'Falha ao atualizar colmeia. Verifique o backend e os campos.'
-          : 'Falha ao criar colmeia. Verifique o backend e os campos.';
+        this.error = this.errorMsg(err, isEdit ? 'atualizar colmeia' : 'criar colmeia');
         console.error(isEdit ? 'Erro ao atualizar colmeia' : 'Erro ao criar colmeia', err);
       }
     });
@@ -267,5 +272,19 @@ export class ColmeiasComponent implements OnInit {
     } else {
       this.router.navigate(['/apiarios']);
     }
+  }
+
+  private errorMsg(err: any, action: string): string {
+    const status = err?.status;
+    const backend =
+      (typeof err?.error === 'string')
+        ? err.error
+        : (err?.error?.error || err?.error?.message || err?.message || '');
+    if (status === 400) return `Campos inválidos (400) ao ${action}. ${backend || ''}`.trim();
+    if (status === 401) return `Sessão expirada ou sem autorização (401) ao ${action}.`;
+    if (status === 403) return `Sem permissão (403) para ${action}. Verifique acesso ao apiário.`;
+    if (status === 404) return `Registro não encontrado (404) ao ${action}.`;
+    if (status) return `Falha (${status}) ao ${action}. ${backend || ''}`.trim();
+    return `Falha ao ${action}. ${backend || ''}`.trim();
   }
 }

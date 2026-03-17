@@ -78,13 +78,34 @@ export class ProducaoComponent implements OnInit {
 
   salvar(): void {
     if (this.form.invalid || !this.selecionadoColmeiaId) return;
+    const colmeiaId = Number(this.selecionadoColmeiaId);
+    if (!Number.isFinite(colmeiaId)) {
+      this.error = 'Colmeia inválida';
+      return;
+    }
     const payload = {
-      colmeia: { id: this.selecionadoColmeiaId },
-      ...this.form.value
+      colmeiaId,
+      dataColheita: this.form.value.dataColheita,
+      tipoProduto: this.form.value.tipoProduto,
+      quantidade: Number(this.form.value.quantidade),
+      unidadeMedida: this.form.value.unidadeMedida,
+      lote: this.form.value.lote,
+      observacoes: this.form.value.observacoes
     };
     this.loading = true; this.error = undefined;
     this.producaoService.create(payload).subscribe({
-      next: () => { this.form.reset(); this.loading = false; this.carregarProducao(); },
+      next: () => {
+        this.form.reset({
+          dataColheita: '',
+          tipoProduto: '',
+          quantidade: 0,
+          unidadeMedida: '',
+          lote: '',
+          observacoes: ''
+        });
+        this.loading = false;
+        this.carregarProducao();
+      },
       error: (err) => { this.error = this.errorMsg(err, 'salvar produção'); this.loading = false; }
     });
   }
@@ -92,6 +113,7 @@ export class ProducaoComponent implements OnInit {
   private errorMsg(err: any, action: string): string {
     const status = err?.status;
     const backend = (typeof err?.error === 'string') ? err.error : (err?.error?.error || err?.message || '');
+    if (status === 400) return `Campos inválidos (400) ao ${action}. ${backend || ''}`.trim();
     if (status === 401) return `Sessão expirada ou sem autorização (401) ao ${action}.`;
     if (status === 403) return `Sem permissão (403) para ${action}. Verifique acesso ao apiário/colmeia.`;
     if (status === 404) return `Registro não encontrado (404) ao ${action}.`;

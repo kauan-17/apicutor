@@ -2,8 +2,9 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { ApiariosService } from '../../../services/apiarios.service';
 import { ColmeiaService } from '../../../services/colmeia.service';
+import { InspecaoService } from '../../../services/inspecao.service';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-inspecao-nova',
@@ -23,7 +24,12 @@ export class InspecaoNovaComponent {
   observacaoPorColmeia: Record<number, string> = {};
   feedback?: string;
 
-  constructor(private route: ActivatedRoute, private router: Router, private apiariosService: ApiariosService, private colmeiaService: ColmeiaService) {
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private inspecaoService: InspecaoService,
+    private colmeiaService: ColmeiaService
+  ) {
     this.route.params.subscribe(p => {
       const id = +p['id'];
       this.apiarioId = id || 1;
@@ -46,15 +52,27 @@ export class InspecaoNovaComponent {
   }
 
   salvar() {
-    const payload: any = {
-      data: this.data,
-      responsavel: this.responsavel || 'Usuário',
-      observacoes: this.observacoes,
-      colmeiasVerificadas: this.selecionadas.length,
-      colmeiaIdsVerificadas: this.selecionadas,
-      observacoesPorColmeia: this.observacaoPorColmeia
-    };
-    this.apiariosService.createInspecao(this.apiarioId, payload).subscribe({
+    if (!this.selecionadas.length) {
+      this.feedback = 'Selecione ao menos uma colmeia.';
+      setTimeout(() => (this.feedback = undefined), 3000);
+      return;
+    }
+
+    const dataHora = this.data ? `${this.data}T00:00:00` : undefined;
+    const requests = this.selecionadas.map(colmeiaId => {
+      const observacoesPorColmeia = this.observacaoPorColmeia[colmeiaId];
+      const observacoesFinal = [this.observacoes, observacoesPorColmeia]
+        .filter(v => typeof v === 'string' && v.trim())
+        .join('\n');
+
+      return this.inspecaoService.create({
+        colmeiaId,
+        dataHora,
+        observacoes: observacoesFinal || undefined
+      });
+    });
+
+    forkJoin(requests).subscribe({
       next: () => {
         this.feedback = 'Inspeção registrada com sucesso.';
         setTimeout(() => this.router.navigate(['/apiarios', this.apiarioId]), 600);

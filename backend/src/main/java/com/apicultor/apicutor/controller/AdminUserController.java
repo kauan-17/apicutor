@@ -3,7 +3,6 @@ package com.apicultor.apicutor.controller;
 import com.apicultor.apicutor.model.Usuario;
 import com.apicultor.apicutor.repository.UsuarioRepository;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*; 

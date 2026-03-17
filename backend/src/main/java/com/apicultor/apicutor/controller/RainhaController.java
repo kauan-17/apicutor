@@ -1,5 +1,7 @@
 package com.apicultor.apicutor.controller;
 
+import com.apicultor.apicutor.dto.RainhaInputDTO;
+import com.apicultor.apicutor.vo.RainhaVO;
 import com.apicultor.apicutor.model.Apiario;
 import com.apicultor.apicutor.model.Colmeia;
 import com.apicultor.apicutor.model.Rainha;
@@ -13,10 +15,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/rainhas")
@@ -32,37 +34,43 @@ public class RainhaController {
     private UsuarioRepository usuarioRepository;
 
     @GetMapping
-    public List<Rainha> getAll() {
+    public ResponseEntity<List<RainhaVO>> getAll() {
         Usuario usuario = getUsuarioAtual();
-        if (usuario == null) return List.of();
-        if (isAdmin(usuario)) return rainhaRepository.findAll();
+        if (usuario == null) return ResponseEntity.status(401).build();
+
+        List<Rainha> rainhas;
         boolean isFuncionario = hasRole(usuario, "ROLE_FUNCIONARIO") || hasRole(usuario, "FUNCIONARIO");
-        if (isFuncionario) {
+        if (isAdmin(usuario)) {
+            rainhas = rainhaRepository.findAll();
+        } else if (isFuncionario) {
             List<Rainha> result = new ArrayList<>();
             if (usuario.getApiariosVinculados() != null) {
                 for (Apiario a : usuario.getApiariosVinculados()) {
                     result.addAll(rainhaRepository.findByColmeia_Apiario(a));
                 }
             }
-            return result;
+            rainhas = result;
+        } else {
+            rainhas = rainhaRepository.findByColmeia_Apiario_Proprietario(usuario);
         }
-        return rainhaRepository.findByColmeia_Apiario_Proprietario(usuario);
+
+        return ResponseEntity.ok(rainhas.stream().map(RainhaVO::new).collect(Collectors.toList()));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Rainha> getById(@PathVariable Long id) {
+    public ResponseEntity<RainhaVO> getById(@PathVariable Long id) {
         Usuario usuario = getUsuarioAtual();
         if (usuario == null) return ResponseEntity.status(401).build();
         Optional<Rainha> opt = rainhaRepository.findById(id);
         if (opt.isEmpty()) return ResponseEntity.notFound().build();
         Rainha rainha = opt.get();
         Apiario apiario = rainha.getColmeia() != null ? rainha.getColmeia().getApiario() : null;
-        if (isAdmin(usuario) || canAccessApiario(usuario, apiario)) return ResponseEntity.ok(rainha);
+        if (isAdmin(usuario) || canAccessApiario(usuario, apiario)) return ResponseEntity.ok(new RainhaVO(rainha));
         return ResponseEntity.status(403).build();
     }
 
     @GetMapping("/colmeia/{colmeiaId}")
-    public ResponseEntity<Rainha> getByColmeia(@PathVariable Long colmeiaId) {
+    public ResponseEntity<RainhaVO> getByColmeia(@PathVariable Long colmeiaId) {
         Usuario usuario = getUsuarioAtual();
         if (usuario == null) return ResponseEntity.status(401).build();
         Optional<Colmeia> colmeiaOpt = colmeiaRepository.findById(colmeiaId);
@@ -70,33 +78,34 @@ public class RainhaController {
         Colmeia colmeia = colmeiaOpt.get();
         Apiario apiario = colmeia.getApiario();
         if (!isAdmin(usuario) && !canAccessApiario(usuario, apiario)) return ResponseEntity.status(403).build();
-        return ResponseEntity.ok(colmeia.getRainha());
+        Rainha rainha = colmeia.getRainha();
+        return ResponseEntity.ok(rainha != null ? new RainhaVO(rainha) : null);
     }
 
     @PostMapping
-    public ResponseEntity<Rainha> create(@RequestBody RainhaRequest request) {
+    public ResponseEntity<RainhaVO> create(@RequestBody RainhaInputDTO input) {
         Usuario usuario = getUsuarioAtual();
         if (usuario == null) return ResponseEntity.status(401).build();
-        if (request.getColmeiaId() == null) return ResponseEntity.badRequest().build();
-        Optional<Colmeia> colmeiaOpt = colmeiaRepository.findById(request.getColmeiaId());
+        if (input == null || input.getColmeiaId() == null) return ResponseEntity.badRequest().build();
+        Optional<Colmeia> colmeiaOpt = colmeiaRepository.findById(input.getColmeiaId());
         if (colmeiaOpt.isEmpty()) return ResponseEntity.badRequest().build();
         Colmeia colmeia = colmeiaOpt.get();
         Apiario apiario = colmeia.getApiario();
         if (!isAdmin(usuario) && !canAccessApiario(usuario, apiario)) return ResponseEntity.status(403).build();
 
         Rainha rainha = colmeia.getRainha() != null ? colmeia.getRainha() : new Rainha();
-        applyRequest(rainha, request);
+        applyInput(rainha, input);
         rainha = rainhaRepository.save(rainha);
 
         colmeia.setRainha(rainha);
         rainha.setColmeia(colmeia);
         colmeiaRepository.save(colmeia);
 
-        return ResponseEntity.ok(rainha);
+        return ResponseEntity.ok(new RainhaVO(rainha));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Rainha> update(@PathVariable Long id, @RequestBody RainhaRequest request) {
+    public ResponseEntity<RainhaVO> update(@PathVariable Long id, @RequestBody RainhaInputDTO input) {
         Usuario usuario = getUsuarioAtual();
         if (usuario == null) return ResponseEntity.status(401).build();
         Optional<Rainha> opt = rainhaRepository.findById(id);
@@ -105,11 +114,11 @@ public class RainhaController {
         Apiario apiario = rainha.getColmeia() != null ? rainha.getColmeia().getApiario() : null;
         if (!isAdmin(usuario) && !canAccessApiario(usuario, apiario)) return ResponseEntity.status(403).build();
 
-        applyRequest(rainha, request);
+        applyInput(rainha, input);
         rainha = rainhaRepository.save(rainha);
 
-        if (request.getColmeiaId() != null) {
-            Optional<Colmeia> colmeiaOpt = colmeiaRepository.findById(request.getColmeiaId());
+        if (input != null && input.getColmeiaId() != null) {
+            Optional<Colmeia> colmeiaOpt = colmeiaRepository.findById(input.getColmeiaId());
             if (colmeiaOpt.isEmpty()) return ResponseEntity.badRequest().build();
             Colmeia target = colmeiaOpt.get();
             if (!isAdmin(usuario) && !canAccessApiario(usuario, target.getApiario())) return ResponseEntity.status(403).build();
@@ -124,7 +133,7 @@ public class RainhaController {
             colmeiaRepository.save(target);
         }
 
-        return ResponseEntity.ok(rainha);
+        return ResponseEntity.ok(new RainhaVO(rainha));
     }
 
     @DeleteMapping("/{id}")
@@ -146,13 +155,14 @@ public class RainhaController {
         return ResponseEntity.ok().build();
     }
 
-    private void applyRequest(Rainha rainha, RainhaRequest request) {
-        if (request.getMarcacao() != null) rainha.setMarcacao(request.getMarcacao());
-        if (request.getRaca() != null) rainha.setRaca(request.getRaca());
-        if (request.getDataNascimento() != null) rainha.setDataNascimento(request.getDataNascimento());
-        if (request.getDataIntroducao() != null) rainha.setDataIntroducao(request.getDataIntroducao());
-        if (request.getOrigem() != null) rainha.setOrigem(request.getOrigem());
-        if (request.getObservacoes() != null) rainha.setObservacoes(request.getObservacoes());
+    private void applyInput(Rainha rainha, RainhaInputDTO input) {
+        if (input == null || rainha == null) return;
+        if (input.getMarcacao() != null) rainha.setMarcacao(input.getMarcacao());
+        if (input.getRaca() != null) rainha.setRaca(input.getRaca());
+        if (input.getDataNascimento() != null) rainha.setDataNascimento(input.getDataNascimento());
+        if (input.getDataIntroducao() != null) rainha.setDataIntroducao(input.getDataIntroducao());
+        if (input.getOrigem() != null) rainha.setOrigem(input.getOrigem());
+        if (input.getObservacoes() != null) rainha.setObservacoes(input.getObservacoes());
     }
 
     private Usuario getUsuarioAtual() {
@@ -185,31 +195,6 @@ public class RainhaController {
         return usuario.getApiariosVinculados().stream()
                 .filter(a -> a != null && a.getId() != null)
                 .anyMatch(a -> a.getId().equals(apiarioId));
-    }
-
-    public static class RainhaRequest {
-        private Long colmeiaId;
-        private String marcacao;
-        private String raca;
-        private LocalDate dataNascimento;
-        private LocalDate dataIntroducao;
-        private Rainha.Origem origem;
-        private String observacoes;
-
-        public Long getColmeiaId() { return colmeiaId; }
-        public void setColmeiaId(Long colmeiaId) { this.colmeiaId = colmeiaId; }
-        public String getMarcacao() { return marcacao; }
-        public void setMarcacao(String marcacao) { this.marcacao = marcacao; }
-        public String getRaca() { return raca; }
-        public void setRaca(String raca) { this.raca = raca; }
-        public LocalDate getDataNascimento() { return dataNascimento; }
-        public void setDataNascimento(LocalDate dataNascimento) { this.dataNascimento = dataNascimento; }
-        public LocalDate getDataIntroducao() { return dataIntroducao; }
-        public void setDataIntroducao(LocalDate dataIntroducao) { this.dataIntroducao = dataIntroducao; }
-        public Rainha.Origem getOrigem() { return origem; }
-        public void setOrigem(Rainha.Origem origem) { this.origem = origem; }
-        public String getObservacoes() { return observacoes; }
-        public void setObservacoes(String observacoes) { this.observacoes = observacoes; }
     }
 
 }

@@ -1,5 +1,7 @@
 package com.apicultor.apicutor.controller;
 
+import com.apicultor.apicutor.dto.ColmeiaInputDTO;
+import com.apicultor.apicutor.vo.ColmeiaVO;
 import com.apicultor.apicutor.model.Apiario;
 import com.apicultor.apicutor.model.Colmeia;
 import com.apicultor.apicutor.model.Usuario;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/colmeias")
@@ -29,29 +32,31 @@ public class ColmeiaController {
     private UsuarioRepository usuarioRepository;
 
     @GetMapping
-    public List<Colmeia> getAllColmeias() {
+    public ResponseEntity<List<ColmeiaVO>> getAllColmeias() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
         Usuario usuario = usuarioRepository.findByUsername(username).orElseThrow();
         boolean isAdmin = hasRole(usuario, "ROLE_ADMIN") || hasRole(usuario, "ADMIN");
         boolean isFuncionario = hasRole(usuario, "ROLE_FUNCIONARIO") || hasRole(usuario, "FUNCIONARIO");
+        List<Colmeia> colmeias;
         if (isAdmin) {
-            return colmeiaRepository.findAll();
-        }
-        if (isFuncionario) {
+            colmeias = colmeiaRepository.findAll();
+        } else if (isFuncionario) {
             // Colmeias dos apiários vinculados ao usuário
             java.util.List<Colmeia> result = new java.util.ArrayList<>();
             for (Apiario a : usuario.getApiariosVinculados()) {
                 result.addAll(colmeiaRepository.findByApiario(a));
             }
-            return result;
+            colmeias = result;
+        } else {
+            // Apicultor: colmeias dos apiários do proprietário
+            colmeias = colmeiaRepository.findByApiarioProprietario(usuario);
         }
-        // Apicultor: colmeias dos apiários do proprietário
-        return colmeiaRepository.findByApiarioProprietario(usuario);
+        return ResponseEntity.ok(colmeias.stream().map(ColmeiaVO::new).collect(Collectors.toList()));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Colmeia> getColmeiaById(@PathVariable Long id) {
+    public ResponseEntity<ColmeiaVO> getColmeiaById(@PathVariable Long id) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
         Usuario usuario = usuarioRepository.findByUsername(username).orElseThrow();
@@ -60,30 +65,34 @@ public class ColmeiaController {
         if (colmeia.isEmpty()) return ResponseEntity.notFound().build();
         Apiario apiario = colmeia.get().getApiario();
         if (isAdmin(usuario) || canAccessApiario(usuario, apiario)) {
-            return ResponseEntity.ok(colmeia.get());
+            return ResponseEntity.ok(new ColmeiaVO(colmeia.get()));
         }
         return ResponseEntity.status(403).build();
     }
 
     @PostMapping
-    public ResponseEntity<Colmeia> createColmeia(@RequestBody Colmeia colmeia) {
+    public ResponseEntity<ColmeiaVO> createColmeia(@RequestBody ColmeiaInputDTO input) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
         Usuario usuario = usuarioRepository.findByUsername(username).orElseThrow();
         
-        Optional<Apiario> apiario = apiarioRepository.findById(colmeia.getApiario().getId());
+        if (input == null || input.getApiarioId() == null) return ResponseEntity.badRequest().build();
+        Optional<Apiario> apiario = apiarioRepository.findById(input.getApiarioId());
         if (apiario.isEmpty()) return ResponseEntity.badRequest().build();
         Apiario a = apiario.get();
         // Cadastro e ligação: permitido para ADMIN, APICULTOR (proprietário) e FUNCIONARIO vinculado
         if (isAdmin(usuario) || canAccessApiario(usuario, a)) {
+            Colmeia colmeia = new Colmeia();
+            applyInput(colmeia, input);
             colmeia.setApiario(a);
-            return ResponseEntity.ok(colmeiaRepository.save(colmeia));
+            colmeia = colmeiaRepository.save(colmeia);
+            return ResponseEntity.ok(new ColmeiaVO(colmeia));
         }
         return ResponseEntity.status(403).build();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Colmeia> updateColmeia(@PathVariable Long id, @RequestBody Colmeia colmeiaDetails) {
+    public ResponseEntity<ColmeiaVO> updateColmeia(@PathVariable Long id, @RequestBody ColmeiaInputDTO input) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
         Usuario usuario = usuarioRepository.findByUsername(username).orElseThrow();
@@ -94,18 +103,9 @@ public class ColmeiaController {
         Apiario apiario = colmeia.getApiario();
         // Execução (atualizar): somente ADMIN ou APICULTOR proprietário
         if (isAdmin(usuario) || (apiario.getProprietario().getId().equals(usuario.getId()))) {
-            colmeia.setIdentificacao(colmeiaDetails.getIdentificacao());
-            colmeia.setTipo(colmeiaDetails.getTipo());
-            colmeia.setDataInstalacao(colmeiaDetails.getDataInstalacao());
-            colmeia.setObservacoes(colmeiaDetails.getObservacoes());
-            colmeia.setStatus(colmeiaDetails.getStatus());
-            // Novos campos
-            colmeia.setTipoAbelha(colmeiaDetails.getTipoAbelha());
-            colmeia.setRainhaStatus(colmeiaDetails.getRainhaStatus());
-            colmeia.setOrigemColonia(colmeiaDetails.getOrigemColonia());
-            colmeia.setMelgueira(colmeiaDetails.getMelgueira());
-            colmeia.setQuantidadeMelgueiras(colmeiaDetails.getQuantidadeMelgueiras());
-            return ResponseEntity.ok(colmeiaRepository.save(colmeia));
+            applyInput(colmeia, input);
+            colmeia = colmeiaRepository.save(colmeia);
+            return ResponseEntity.ok(new ColmeiaVO(colmeia));
         }
         return ResponseEntity.status(403).build();
     }
@@ -129,7 +129,7 @@ public class ColmeiaController {
     }
     
     @GetMapping("/apiario/{apiarioId}")
-    public ResponseEntity<List<Colmeia>> getColmeiasByApiario(@PathVariable Long apiarioId) {
+    public ResponseEntity<List<ColmeiaVO>> getColmeiasByApiario(@PathVariable Long apiarioId) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
         Usuario usuario = usuarioRepository.findByUsername(username).orElseThrow();
@@ -139,7 +139,7 @@ public class ColmeiaController {
         Apiario a = apiario.get();
         if (isAdmin(usuario) || canAccessApiario(usuario, a)) {
             List<Colmeia> colmeias = colmeiaRepository.findByApiario(a);
-            return ResponseEntity.ok(colmeias);
+            return ResponseEntity.ok(colmeias.stream().map(ColmeiaVO::new).collect(Collectors.toList()));
         }
         return ResponseEntity.status(403).build();
     }
@@ -169,5 +169,30 @@ public class ColmeiaController {
         return usuario.getApiariosVinculados().stream()
                 .filter(a -> a != null && a.getId() != null)
                 .anyMatch(a -> a.getId().equals(apiarioId));
+    }
+
+    private void applyInput(Colmeia colmeia, ColmeiaInputDTO input) {
+        if (input == null || colmeia == null) return;
+        if (input.getIdentificacao() != null) colmeia.setIdentificacao(input.getIdentificacao());
+        if (input.getTipo() != null) colmeia.setTipo(input.getTipo());
+        colmeia.setDataInstalacao(input.getDataInstalacao());
+        colmeia.setObservacoes(input.getObservacoes());
+        if (input.getStatus() != null) colmeia.setStatus(input.getStatus());
+        colmeia.setTipoAbelha(input.getTipoAbelha());
+        colmeia.setRainhaStatus(input.getRainhaStatus());
+        colmeia.setOrigemColonia(input.getOrigemColonia());
+
+        Integer qtd = input.getQuantidadeMelgueiras();
+        Boolean melgueira = input.getMelgueira();
+        if (qtd != null && qtd > 0) {
+            colmeia.setQuantidadeMelgueiras(qtd);
+            colmeia.setMelgueira(true);
+        } else if (Boolean.FALSE.equals(melgueira)) {
+            colmeia.setMelgueira(false);
+            colmeia.setQuantidadeMelgueiras(0);
+        } else {
+            colmeia.setMelgueira(melgueira);
+            colmeia.setQuantidadeMelgueiras(qtd);
+        }
     }
 }

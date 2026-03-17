@@ -1,7 +1,7 @@
 package com.apicultor.apicutor.controller;
 
 import com.apicultor.apicutor.dto.TarefaInputDTO;
-import com.apicultor.apicutor.dto.TarefaVO;
+import com.apicultor.apicutor.vo.TarefaVO;
 import com.apicultor.apicutor.model.Apiario;
 import com.apicultor.apicutor.model.Tarefa;
 import com.apicultor.apicutor.model.Usuario;

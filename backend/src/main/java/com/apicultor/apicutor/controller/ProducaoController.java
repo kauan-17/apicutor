@@ -1,10 +1,11 @@
 package com.apicultor.apicutor.controller;
 
+import com.apicultor.apicutor.dto.ProducaoInputDTO;
+import com.apicultor.apicutor.vo.ProducaoVO;
 import com.apicultor.apicutor.model.Apiario;
 import com.apicultor.apicutor.model.Colmeia;
 import com.apicultor.apicutor.model.Producao;
 import com.apicultor.apicutor.model.Usuario;
-import com.apicultor.apicutor.repository.ApiarioRepository;
 import com.apicultor.apicutor.repository.ColmeiaRepository;
 import com.apicultor.apicutor.repository.ProducaoRepository;
 import com.apicultor.apicutor.repository.UsuarioRepository;
@@ -15,10 +16,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/producao")
@@ -34,46 +35,46 @@ public class ProducaoController {
     private ColmeiaRepository colmeiaRepository;
 
     @Autowired
-    private ApiarioRepository apiarioRepository;
-
-    @Autowired
     private UsuarioRepository usuarioRepository;
 
     @GetMapping
-    public List<Producao> getAll() {
+    public ResponseEntity<List<ProducaoVO>> getAll() {
         Usuario usuario = getUsuarioAtual();
-        if (usuario == null) {
-            // Não autenticado
-            return List.of();
-        }
-        if (isAdmin(usuario)) return producaoService.listAll();
+        if (usuario == null) return ResponseEntity.status(401).build();
+
+        List<Producao> producoes;
         boolean isFuncionario = hasRole(usuario, "ROLE_FUNCIONARIO") || hasRole(usuario, "FUNCIONARIO");
-        if (isFuncionario) {
+        if (isAdmin(usuario)) {
+            producoes = producaoService.listAll();
+        } else if (isFuncionario) {
             List<Producao> result = new ArrayList<>();
             if (usuario.getApiariosVinculados() != null) {
                 for (Apiario a : usuario.getApiariosVinculados()) {
                     result.addAll(producaoRepository.findByColmeia_Apiario(a));
                 }
             }
-            return result;
+            producoes = result;
+        } else {
+            producoes = producaoRepository.findByColmeia_Apiario_Proprietario(usuario);
         }
-        return producaoRepository.findByColmeia_Apiario_Proprietario(usuario);
+
+        return ResponseEntity.ok(producoes.stream().map(ProducaoVO::new).collect(Collectors.toList()));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Producao> getById(@PathVariable Long id) {
+    public ResponseEntity<ProducaoVO> getById(@PathVariable Long id) {
         Usuario usuario = getUsuarioAtual();
         if (usuario == null) return ResponseEntity.status(401).build();
         Optional<Producao> opt = producaoService.findById(id);
         if (opt.isEmpty()) return ResponseEntity.notFound().build();
         Producao p = opt.get();
         Apiario apiario = p.getColmeia() != null ? p.getColmeia().getApiario() : null;
-        if (isAdmin(usuario) || canAccessApiario(usuario, apiario)) return ResponseEntity.ok(p);
+        if (isAdmin(usuario) || canAccessApiario(usuario, apiario)) return ResponseEntity.ok(new ProducaoVO(p));
         return ResponseEntity.status(403).build();
     }
 
     @GetMapping("/colmeia/{colmeiaId}")
-    public ResponseEntity<List<Producao>> getByColmeia(@PathVariable Long colmeiaId) {
+    public ResponseEntity<List<ProducaoVO>> getByColmeia(@PathVariable Long colmeiaId) {
         Usuario usuario = getUsuarioAtual();
         if (usuario == null) return ResponseEntity.status(401).build();
         Optional<Colmeia> colmeiaOpt = colmeiaRepository.findById(colmeiaId);
@@ -81,32 +82,34 @@ public class ProducaoController {
         Colmeia colmeia = colmeiaOpt.get();
         Apiario apiario = colmeia.getApiario();
         if (isAdmin(usuario) || canAccessApiario(usuario, apiario)) {
-            return ResponseEntity.ok(producaoRepository.findByColmeia(colmeia));
+            List<Producao> producoes = producaoRepository.findByColmeia(colmeia);
+            return ResponseEntity.ok(producoes.stream().map(ProducaoVO::new).collect(Collectors.toList()));
         }
         return ResponseEntity.status(403).build();
     }
 
     @PostMapping
-    public ResponseEntity<Producao> create(@RequestBody Producao producao) {
+    public ResponseEntity<ProducaoVO> create(@RequestBody ProducaoInputDTO input) {
         Usuario usuario = getUsuarioAtual();
         if (usuario == null) return ResponseEntity.status(401).build();
-        if (producao.getColmeia() == null || producao.getColmeia().getId() == null) {
-            return ResponseEntity.badRequest().build();
-        }
-        Optional<Colmeia> colmeiaOpt = colmeiaRepository.findById(producao.getColmeia().getId());
+        if (input == null || input.getColmeiaId() == null) return ResponseEntity.badRequest().build();
+
+        Optional<Colmeia> colmeiaOpt = colmeiaRepository.findById(input.getColmeiaId());
         if (colmeiaOpt.isEmpty()) return ResponseEntity.badRequest().build();
         Colmeia colmeia = colmeiaOpt.get();
         Apiario apiario = colmeia.getApiario();
-        boolean isFuncionario = hasRole(usuario, "ROLE_FUNCIONARIO") || hasRole(usuario, "FUNCIONARIO");
-        if (isAdmin(usuario) || canAccessApiario(usuario, apiario) || isFuncionario) {
+        if (isAdmin(usuario) || canAccessApiario(usuario, apiario)) {
+            Producao producao = new Producao();
             producao.setColmeia(colmeia);
-            return ResponseEntity.ok(producaoService.save(producao));
+            applyInput(producao, input);
+            producao = producaoService.save(producao);
+            return ResponseEntity.ok(new ProducaoVO(producao));
         }
         return ResponseEntity.status(403).build();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Producao> update(@PathVariable Long id, @RequestBody Producao producaoDetails) {
+    public ResponseEntity<ProducaoVO> update(@PathVariable Long id, @RequestBody ProducaoInputDTO input) {
         Usuario usuario = getUsuarioAtual();
         if (usuario == null) return ResponseEntity.status(401).build();
         Optional<Producao> opt = producaoService.findById(id);
@@ -114,13 +117,9 @@ public class ProducaoController {
         Producao producao = opt.get();
         Apiario apiario = producao.getColmeia() != null ? producao.getColmeia().getApiario() : null;
         if (isAdmin(usuario) || canAccessApiario(usuario, apiario)) {
-            producao.setDataColheita(producaoDetails.getDataColheita());
-            producao.setTipoProduto(producaoDetails.getTipoProduto());
-            producao.setQuantidade(producaoDetails.getQuantidade());
-            producao.setUnidadeMedida(producaoDetails.getUnidadeMedida());
-            producao.setLote(producaoDetails.getLote());
-            producao.setObservacoes(producaoDetails.getObservacoes());
-            return ResponseEntity.ok(producaoService.save(producao));
+            applyInput(producao, input);
+            producao = producaoService.save(producao);
+            return ResponseEntity.ok(new ProducaoVO(producao));
         }
         return ResponseEntity.status(403).build();
     }
@@ -138,6 +137,16 @@ public class ProducaoController {
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.status(403).build();
+    }
+
+    private void applyInput(Producao producao, ProducaoInputDTO input) {
+        if (producao == null || input == null) return;
+        producao.setDataColheita(input.getDataColheita());
+        producao.setTipoProduto(input.getTipoProduto());
+        producao.setQuantidade(input.getQuantidade());
+        producao.setUnidadeMedida(input.getUnidadeMedida());
+        producao.setLote(input.getLote());
+        producao.setObservacoes(input.getObservacoes());
     }
 
     // Helpers

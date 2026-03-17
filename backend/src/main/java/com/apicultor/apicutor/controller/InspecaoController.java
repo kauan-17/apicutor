@@ -1,5 +1,7 @@
 package com.apicultor.apicutor.controller;
 
+import com.apicultor.apicutor.dto.InspecaoInputDTO;
+import com.apicultor.apicutor.vo.InspecaoVO;
 import com.apicultor.apicutor.model.Apiario;
 import com.apicultor.apicutor.model.Colmeia;
 import com.apicultor.apicutor.model.Inspecao;
@@ -17,6 +19,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/inspecoes")
@@ -32,37 +35,41 @@ public class InspecaoController {
     private UsuarioRepository usuarioRepository;
 
     @GetMapping
-    public List<Inspecao> getAll() {
+    public ResponseEntity<List<InspecaoVO>> getAll() {
         Usuario usuario = getUsuarioAtual();
-        if (usuario == null) return List.of();
-        if (isAdmin(usuario)) return inspecaoRepository.findAll();
+        if (usuario == null) return ResponseEntity.status(401).build();
+        List<Inspecao> inspecoes;
         boolean isFuncionario = hasRole(usuario, "ROLE_FUNCIONARIO") || hasRole(usuario, "FUNCIONARIO");
-        if (isFuncionario) {
+        if (isAdmin(usuario)) {
+            inspecoes = inspecaoRepository.findAll();
+        } else if (isFuncionario) {
             List<Inspecao> result = new ArrayList<>();
             if (usuario.getApiariosVinculados() != null) {
                 for (Apiario a : usuario.getApiariosVinculados()) {
                     result.addAll(inspecaoRepository.findByColmeia_Apiario(a));
                 }
             }
-            return result;
+            inspecoes = result;
+        } else {
+            inspecoes = inspecaoRepository.findByColmeia_Apiario_Proprietario(usuario);
         }
-        return inspecaoRepository.findByColmeia_Apiario_Proprietario(usuario);
+        return ResponseEntity.ok(inspecoes.stream().map(InspecaoVO::new).collect(Collectors.toList()));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Inspecao> getById(@PathVariable Long id) {
+    public ResponseEntity<InspecaoVO> getById(@PathVariable Long id) {
         Usuario usuario = getUsuarioAtual();
         if (usuario == null) return ResponseEntity.status(401).build();
         Optional<Inspecao> opt = inspecaoRepository.findById(id);
         if (opt.isEmpty()) return ResponseEntity.notFound().build();
         Inspecao inspecao = opt.get();
         Apiario apiario = inspecao.getColmeia() != null ? inspecao.getColmeia().getApiario() : null;
-        if (isAdmin(usuario) || canAccessApiario(usuario, apiario)) return ResponseEntity.ok(inspecao);
+        if (isAdmin(usuario) || canAccessApiario(usuario, apiario)) return ResponseEntity.ok(new InspecaoVO(inspecao));
         return ResponseEntity.status(403).build();
     }
 
     @GetMapping("/colmeia/{colmeiaId}")
-    public ResponseEntity<List<Inspecao>> getByColmeia(@PathVariable Long colmeiaId) {
+    public ResponseEntity<List<InspecaoVO>> getByColmeia(@PathVariable Long colmeiaId) {
         Usuario usuario = getUsuarioAtual();
         if (usuario == null) return ResponseEntity.status(401).build();
         Optional<Colmeia> colmeiaOpt = colmeiaRepository.findById(colmeiaId);
@@ -70,32 +77,36 @@ public class InspecaoController {
         Colmeia colmeia = colmeiaOpt.get();
         Apiario apiario = colmeia.getApiario();
         if (isAdmin(usuario) || canAccessApiario(usuario, apiario)) {
-            return ResponseEntity.ok(inspecaoRepository.findByColmeia(colmeia));
+            List<Inspecao> inspecoes = inspecaoRepository.findByColmeia(colmeia);
+            return ResponseEntity.ok(inspecoes.stream().map(InspecaoVO::new).collect(Collectors.toList()));
         }
         return ResponseEntity.status(403).build();
     }
 
     @PostMapping
-    public ResponseEntity<Inspecao> create(@RequestBody Inspecao inspecao) {
+    public ResponseEntity<InspecaoVO> create(@RequestBody InspecaoInputDTO input) {
         Usuario usuario = getUsuarioAtual();
         if (usuario == null) return ResponseEntity.status(401).build();
-        if (inspecao.getColmeia() == null || inspecao.getColmeia().getId() == null) {
+        if (input == null || input.getColmeiaId() == null) {
             return ResponseEntity.badRequest().build();
         }
-        Optional<Colmeia> colmeiaOpt = colmeiaRepository.findById(inspecao.getColmeia().getId());
+        Optional<Colmeia> colmeiaOpt = colmeiaRepository.findById(input.getColmeiaId());
         if (colmeiaOpt.isEmpty()) return ResponseEntity.badRequest().build();
         Colmeia colmeia = colmeiaOpt.get();
         Apiario apiario = colmeia.getApiario();
         if (!isAdmin(usuario) && !canAccessApiario(usuario, apiario)) return ResponseEntity.status(403).build();
 
+        Inspecao inspecao = new Inspecao();
         inspecao.setColmeia(colmeia);
         inspecao.setResponsavel(usuario);
+        applyInput(inspecao, input);
         if (inspecao.getDataHora() == null) inspecao.setDataHora(LocalDateTime.now());
-        return ResponseEntity.ok(inspecaoRepository.save(inspecao));
+        inspecao = inspecaoRepository.save(inspecao);
+        return ResponseEntity.ok(new InspecaoVO(inspecao));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Inspecao> update(@PathVariable Long id, @RequestBody Inspecao inspecaoDetails) {
+    public ResponseEntity<InspecaoVO> update(@PathVariable Long id, @RequestBody InspecaoInputDTO input) {
         Usuario usuario = getUsuarioAtual();
         if (usuario == null) return ResponseEntity.status(401).build();
         Optional<Inspecao> opt = inspecaoRepository.findById(id);
@@ -104,17 +115,9 @@ public class InspecaoController {
         Apiario apiario = inspecao.getColmeia() != null ? inspecao.getColmeia().getApiario() : null;
         if (!isAdmin(usuario) && !canAccessApiario(usuario, apiario)) return ResponseEntity.status(403).build();
 
-        inspecao.setDataHora(inspecaoDetails.getDataHora());
-        inspecao.setPresencaRainha(inspecaoDetails.getPresencaRainha());
-        inspecao.setPresencaOvos(inspecaoDetails.getPresencaOvos());
-        inspecao.setPresencaLarvas(inspecaoDetails.getPresencaLarvas());
-        inspecao.setQuadrosComCria(inspecaoDetails.getQuadrosComCria());
-        inspecao.setQuadrosComMel(inspecaoDetails.getQuadrosComMel());
-        inspecao.setQuadrosComPolen(inspecaoDetails.getQuadrosComPolen());
-        inspecao.setSinaisDoenças(inspecaoDetails.getSinaisDoenças());
-        inspecao.setObservacoes(inspecaoDetails.getObservacoes());
-
-        return ResponseEntity.ok(inspecaoRepository.save(inspecao));
+        applyInput(inspecao, input);
+        inspecao = inspecaoRepository.save(inspecao);
+        return ResponseEntity.ok(new InspecaoVO(inspecao));
     }
 
     @DeleteMapping("/{id}")
@@ -128,6 +131,19 @@ public class InspecaoController {
         if (!isAdmin(usuario) && !canAccessApiario(usuario, apiario)) return ResponseEntity.status(403).build();
         inspecaoRepository.delete(inspecao);
         return ResponseEntity.ok().build();
+    }
+
+    private void applyInput(Inspecao inspecao, InspecaoInputDTO input) {
+        if (inspecao == null || input == null) return;
+        inspecao.setDataHora(input.getDataHora());
+        inspecao.setPresencaRainha(input.getPresencaRainha());
+        inspecao.setPresencaOvos(input.getPresencaOvos());
+        inspecao.setPresencaLarvas(input.getPresencaLarvas());
+        inspecao.setQuadrosComCria(input.getQuadrosComCria());
+        inspecao.setQuadrosComMel(input.getQuadrosComMel());
+        inspecao.setQuadrosComPolen(input.getQuadrosComPolen());
+        inspecao.setSinaisDoenças(input.getSinaisDoencas());
+        inspecao.setObservacoes(input.getObservacoes());
     }
 
     private Usuario getUsuarioAtual() {

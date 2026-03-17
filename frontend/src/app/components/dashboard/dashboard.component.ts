@@ -71,7 +71,13 @@ export class DashboardComponent implements OnInit {
         // Contar colmeias de todos os apiários
         let totalColmeias = 0;
         apiarios.forEach((apiario: Apiario) => {
-          totalColmeias += apiario.colmeias?.length || 0;
+          const fromBackend = Number((apiario as any)?.totalColmeias);
+          if (Number.isFinite(fromBackend)) {
+            totalColmeias += fromBackend;
+            return;
+          }
+          const fromArray = Number((apiario as any)?.colmeias?.length);
+          totalColmeias += Number.isFinite(fromArray) ? fromArray : 0;
         });
         this.stats.totalColmeias = totalColmeias;
         
