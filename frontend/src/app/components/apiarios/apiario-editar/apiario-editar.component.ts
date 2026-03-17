@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ApiarioService } from '../../../services/apiario.service';
+import { GeocodingService } from '../../../services/geocoding.service';
 
 @Component({
   selector: 'app-apiario-editar',
@@ -16,18 +17,33 @@ export class ApiarioEditarComponent {
   nome = '';
   proprietario = '';
   localizacaoStr = '';
+  cep = '';
   latitude?: number;
   longitude?: number;
   descricao = '';
   feedback?: string;
   saving = false;
+  buscandoCoords = false;
 
-  constructor(private route: ActivatedRoute, private router: Router, private apiarioHttp: ApiarioService) {
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private apiarioHttp: ApiarioService,
+    private geocoding: GeocodingService
+  ) {
     this.route.params.subscribe(p => {
       const id = +p['id'];
       this.apiarioId = id || 1;
       this.carregar();
     });
+  }
+
+  get cepDigits(): string {
+    return (this.cep || '').replace(/\D/g, '');
+  }
+
+  get cepValido(): boolean {
+    return this.cepDigits.length === 8;
   }
 
   carregar() {
@@ -38,6 +54,23 @@ export class ApiarioEditarComponent {
       this.latitude = a.latitude ?? undefined;
       this.longitude = a.longitude ?? undefined;
       this.descricao = a.descricao || '';
+    });
+  }
+
+  buscarCoordenadasPorCEP() {
+    if (!this.cepValido) { this.feedback = 'CEP inválido'; return; }
+    this.buscandoCoords = true;
+    this.geocoding.geocodeCep(this.cepDigits).subscribe({
+      next: (res) => {
+        this.latitude = res.latitude;
+        this.longitude = res.longitude;
+        this.buscandoCoords = false;
+        this.feedback = undefined;
+      },
+      error: () => {
+        this.buscandoCoords = false;
+        this.feedback = 'Falha ao buscar latitude/longitude';
+      }
     });
   }
 

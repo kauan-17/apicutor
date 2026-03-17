@@ -1,6 +1,7 @@
 package com.apicultor.apicutor.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -29,6 +30,7 @@ public class Usuario {
     private String email;
     
     @Column(nullable = false)
+    @JsonIgnore
     private String senha;
     
     @ElementCollection(fetch = FetchType.EAGER)

@@ -28,6 +28,13 @@
             <div class="input-group">
               <input type="text" class="form-control" [(ngModel)]="cep" name="cep" placeholder="00000-000" />
               <button type="button" class="btn btn-outline-secondary" (click)="buscarEnderecoPorCEP()">Buscar</button>
+              <button
+                *ngIf="cepValido"
+                type="button"
+                class="btn btn-outline-primary"
+                [disabled]="buscandoCoords"
+                (click)="buscarCoordenadasPorCEP()"
+              >{{ buscandoCoords ? 'Buscando...' : 'Lat/Lng' }}</button>
             </div>
           </div>
           <div class="col-md-3">

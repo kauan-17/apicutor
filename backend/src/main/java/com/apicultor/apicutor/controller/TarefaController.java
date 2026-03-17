@@ -1,5 +1,7 @@
 package com.apicultor.apicutor.controller;
 
+import com.apicultor.apicutor.dto.TarefaInputDTO;
+import com.apicultor.apicutor.dto.TarefaVO;
 import com.apicultor.apicutor.model.Apiario;
 import com.apicultor.apicutor.model.Tarefa;
 import com.apicultor.apicutor.model.Usuario;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/tarefas")
@@ -30,20 +33,22 @@ public class TarefaController {
     private UsuarioRepository usuarioRepository;
 
     @GetMapping
-    public ResponseEntity<List<Tarefa>> listByApiario(@RequestParam("apiarioId") Long apiarioId) {
+    public ResponseEntity<List<TarefaVO>> listByApiario(@RequestParam("apiarioId") Long apiarioId) {
         Usuario usuario = getUsuarioAtual();
         if (usuario == null) return ResponseEntity.status(401).build();
         Optional<Apiario> apiarioOpt = apiarioRepository.findById(apiarioId);
         if (apiarioOpt.isEmpty()) return ResponseEntity.notFound().build();
         Apiario apiario = apiarioOpt.get();
         if (isAdmin(usuario) || canAccessApiario(usuario, apiario)) {
-            return ResponseEntity.ok(tarefaRepository.findByApiario(apiario));
+            List<Tarefa> tarefas = tarefaRepository.findByApiario(apiario);
+            List<TarefaVO> vos = tarefas.stream().map(TarefaVO::new).collect(Collectors.toList());
+            return ResponseEntity.ok(vos);
         }
         return ResponseEntity.status(403).build();
     }
 
     @PostMapping
-    public ResponseEntity<Tarefa> create(@RequestBody TarefaInput input) {
+    public ResponseEntity<TarefaVO> create(@RequestBody TarefaInputDTO input) {
         Usuario usuario = getUsuarioAtual();
         if (usuario == null) return ResponseEntity.status(401).build();
         if (input.apiarioId == null || input.titulo == null || input.titulo.trim().isEmpty()) {
@@ -60,13 +65,14 @@ public class TarefaController {
             t.setPrazo(parseDate(input.prazo));
             String status = input.status == null || input.status.trim().isEmpty() ? "Pendente" : input.status;
             t.setStatus(status);
-            return ResponseEntity.ok(tarefaRepository.save(t));
+            t = tarefaRepository.save(t);
+            return ResponseEntity.ok(new TarefaVO(t));
         }
         return ResponseEntity.status(403).build();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Tarefa> update(@PathVariable Long id, @RequestBody TarefaInput input) {
+    public ResponseEntity<TarefaVO> update(@PathVariable Long id, @RequestBody TarefaInputDTO input) {
         Usuario usuario = getUsuarioAtual();
         if (usuario == null) return ResponseEntity.status(401).build();
         Optional<Tarefa> opt = tarefaRepository.findById(id);
@@ -77,7 +83,8 @@ public class TarefaController {
             if (input.titulo != null) t.setTitulo(input.titulo.trim());
             if (input.prazo != null) t.setPrazo(parseDate(input.prazo));
             if (input.status != null) t.setStatus(input.status);
-            return ResponseEntity.ok(tarefaRepository.save(t));
+            t = tarefaRepository.save(t);
+            return ResponseEntity.ok(new TarefaVO(t));
         }
         return ResponseEntity.status(403).build();
     }
@@ -95,13 +102,6 @@ public class TarefaController {
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.status(403).build();
-    }
-
-    public static class TarefaInput {
-        public Long apiarioId;
-        public String titulo;
-        public String prazo; // ISO date (yyyy-MM-dd)
-        public String status; // Pendente | Em andamento | Concluída
     }
 
     private LocalDate parseDate(String iso) {

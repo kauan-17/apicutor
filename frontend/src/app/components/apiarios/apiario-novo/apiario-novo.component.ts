@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { ApiarioService } from '../../../services/apiario.service';
+import { GeocodingService } from '../../../services/geocoding.service';
 import * as L from 'leaflet';
 import { AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 
@@ -27,6 +28,7 @@ export class ApiarioNovoComponent implements AfterViewInit {
   longitude: number | null = null;
   feedback?: string;
   saving = false;
+  buscandoCoords = false;
   leafReady = false;
   mapCenter: { lat: number; lng: number } = { lat: -23.55052, lng: -46.633308 };
   mapZoom = 12;
@@ -35,7 +37,19 @@ export class ApiarioNovoComponent implements AfterViewInit {
   leafletMarker?: L.Marker;
   @ViewChild('leafletNovoMap') leafletDiv?: ElementRef<HTMLDivElement>;
 
-  constructor(private router: Router, private apiarioHttp: ApiarioService) {}
+  constructor(
+    private router: Router,
+    private apiarioHttp: ApiarioService,
+    private geocoding: GeocodingService
+  ) {}
+
+  get cepDigits(): string {
+    return (this.cep || '').replace(/\D/g, '');
+  }
+
+  get cepValido(): boolean {
+    return this.cepDigits.length === 8;
+  }
 
   ngAfterViewInit(): void {
     // Inicializa mapa com centro padrão
@@ -47,9 +61,8 @@ export class ApiarioNovoComponent implements AfterViewInit {
   }
 
   buscarEnderecoPorCEP() {
-    const cep = (this.cep || '').replace(/\D/g, '');
-    if (!cep || cep.length !== 8) { this.feedback = 'CEP inválido'; return; }
-    fetch(`https://viacep.com.br/ws/${cep}/json/`)
+    if (!this.cepValido) { this.feedback = 'CEP inválido'; return; }
+    fetch(`https://viacep.com.br/ws/${this.cepDigits}/json/`)
       .then(r => r.json())
       .then((data: any) => {
         if (data?.erro) { this.feedback = 'CEP não encontrado'; return; }
@@ -61,6 +74,24 @@ export class ApiarioNovoComponent implements AfterViewInit {
         this.feedback = undefined;
       })
       .catch(() => { this.feedback = 'Falha ao consultar CEP'; });
+  }
+
+  buscarCoordenadasPorCEP() {
+    if (!this.cepValido) { this.feedback = 'CEP inválido'; return; }
+    this.buscandoCoords = true;
+    this.geocoding.geocodeCep(this.cepDigits).subscribe({
+      next: (res) => {
+        this.latitude = res.latitude;
+        this.longitude = res.longitude;
+        this.buscandoCoords = false;
+        this.feedback = undefined;
+        this.mostrarNoMapa();
+      },
+      error: () => {
+        this.buscandoCoords = false;
+        this.feedback = 'Falha ao buscar latitude/longitude';
+      }
+    });
   }
 
   mostrarNoMapa() {
