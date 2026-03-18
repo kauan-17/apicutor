@@ -22,6 +22,7 @@ public class FuncionarioController {
     private final UsuarioRepository usuarioRepository;
     private final ApiarioRepository apiarioRepository;
     private final PasswordEncoder passwordEncoder;
+    private static final int MIN_PASSWORD_LENGTH = 6;
 
     public FuncionarioController(UsuarioRepository usuarioRepository, ApiarioRepository apiarioRepository, PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
@@ -32,6 +33,12 @@ public class FuncionarioController {
     @PostMapping
     @PreAuthorize("hasAnyRole('APICULTOR','ADMIN')")
     public ResponseEntity<?> cadastrarFuncionario(@RequestBody FuncionarioRequest request) {
+        if (request == null || request.getPassword() == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Senha é obrigatória"));
+        }
+        if (!isStrongPassword(request.getPassword())) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Senha deve ter no mínimo 6 caracteres, 1 letra maiúscula e 1 caractere especial."));
+        }
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = auth.getName();
         Usuario apicultor = usuarioRepository.findByUsername(username).orElseThrow();
@@ -67,6 +74,20 @@ public class FuncionarioController {
         response.put("id", funcionario.getId());
         response.put("apiarioId", apiario.getId());
         return ResponseEntity.ok(response);
+    }
+
+    private static boolean isStrongPassword(String password) {
+        if (password == null) return false;
+        if (password.length() < MIN_PASSWORD_LENGTH) return false;
+        boolean hasUppercase = false;
+        boolean hasSpecial = false;
+        for (int i = 0; i < password.length(); i++) {
+            char c = password.charAt(i);
+            if (Character.isUpperCase(c)) hasUppercase = true;
+            if (!Character.isLetterOrDigit(c)) hasSpecial = true;
+            if (hasUppercase && hasSpecial) return true;
+        }
+        return false;
     }
 
     @GetMapping

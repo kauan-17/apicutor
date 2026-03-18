@@ -96,16 +96,25 @@
             <i class="fas fa-lock"></i>
           </span>
           <input 
-            type="password" 
+            [type]="showPassword ? 'text' : 'password'"
             class="form-control" 
             formControlName="password"
             placeholder="Senha"
             [ngClass]="{ 'is-invalid': submitted && f['password'].errors }"
           >
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            (click)="togglePasswordVisibility()"
+            [attr.aria-label]="showPassword ? 'Ocultar senha' : 'Mostrar senha'"
+          >
+            <i class="fas" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+          </button>
         </div>
         <div *ngIf="submitted && f['password'].errors" class="invalid-feedback">
           <div *ngIf="f['password'].errors['required']">Senha é obrigatória</div>
           <div *ngIf="f['password'].errors['minlength']">Mínimo 6 caracteres</div>
+          <div *ngIf="f['password'].errors['pattern']">Precisa ter 1 letra maiúscula e 1 caractere especial</div>
         </div>
       </div>
 
@@ -115,12 +124,20 @@
             <i class="fas fa-lock"></i>
           </span>
           <input 
-            type="password" 
+            [type]="showConfirmPassword ? 'text' : 'password'"
             class="form-control" 
             formControlName="confirmPassword"
             placeholder="Confirmar senha"
             [ngClass]="{ 'is-invalid': submitted && f['confirmPassword'].errors }"
           >
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            (click)="toggleConfirmPasswordVisibility()"
+            [attr.aria-label]="showConfirmPassword ? 'Ocultar confirmação' : 'Mostrar confirmação'"
+          >
+            <i class="fas" [ngClass]="showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+          </button>
         </div>
         <div *ngIf="submitted && f['confirmPassword'].errors" class="invalid-feedback">
           <div *ngIf="f['confirmPassword'].errors['required']">Confirmação é obrigatória</div>

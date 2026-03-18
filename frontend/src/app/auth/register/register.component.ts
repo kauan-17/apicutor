@@ -15,6 +15,9 @@ export class RegisterComponent {
   loading = false;
   success = false;
   submitted = false;
+  showPassword = false;
+  showConfirmPassword = false;
+  private static readonly PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{6,}$/;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -26,7 +29,7 @@ export class RegisterComponent {
       sobrenome: ['', Validators.required],
       username: ['', [Validators.required, Validators.minLength(4)]],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
+      password: ['', [Validators.required, Validators.minLength(6), Validators.pattern(RegisterComponent.PASSWORD_REGEX)]],
       confirmPassword: ['', Validators.required],
       role: ['ROLE_APICULTOR', Validators.required]
     }, {
@@ -37,6 +40,14 @@ export class RegisterComponent {
   // Getter para acessar os controles do formulário facilmente
   get f() {
     return this.registerForm.controls;
+  }
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  toggleConfirmPasswordVisibility(): void {
+    this.showConfirmPassword = !this.showConfirmPassword;
   }
 
   // Validador customizado para verificar se as senhas coincidem

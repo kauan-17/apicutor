@@ -30,7 +30,18 @@ import { forkJoin } from 'rxjs';
       </div>
       <div class="col-md-6">
         <label class="form-label">Senha</label>
-        <input type="password" class="form-control" formControlName="password" placeholder="Senha inicial" />
+        <div class="input-group">
+          <input [type]="showPassword ? 'text' : 'password'" class="form-control" formControlName="password" placeholder="Senha inicial" />
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            (click)="togglePasswordVisibility()"
+            [attr.aria-label]="showPassword ? 'Ocultar senha' : 'Mostrar senha'"
+          >
+            <i class="fas" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+          </button>
+        </div>
+        <div class="form-text">Mínimo 6 caracteres, com 1 letra maiúscula e 1 caractere especial.</div>
       </div>
       <div class="col-md-12">
         <label class="form-label">Vincular a apiários</label>
@@ -89,6 +100,8 @@ import { forkJoin } from 'rxjs';
 })
 export class FuncionarioCadastroComponent implements OnInit {
   form!: FormGroup;
+  private static readonly PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{6,}$/;
+  showPassword = false;
 
   apiarios: Apiario[] = [];
   funcionarios: any[] = [];
@@ -107,7 +120,7 @@ export class FuncionarioCadastroComponent implements OnInit {
       nome: ['', [Validators.required, Validators.minLength(2)]],
       username: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(4)]],
+      password: ['', [Validators.required, Validators.minLength(6), Validators.pattern(FuncionarioCadastroComponent.PASSWORD_REGEX)]],
       apiarioId: [null as number | null],
       apiarioIdsExtras: [[] as number[]]
     });
@@ -115,6 +128,10 @@ export class FuncionarioCadastroComponent implements OnInit {
       next: (list) => (this.apiarios = list ?? []),
       error: () => (this.apiarios = [])
     });
+  }
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
   }
 
   

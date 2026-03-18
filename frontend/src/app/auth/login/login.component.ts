@@ -14,6 +14,7 @@ export class LoginComponent {
   error = '';
   loading = false;
   submitted = false;
+  showPassword = false;
   private returnUrl = '/dashboard';
 
   constructor(
@@ -33,6 +34,10 @@ export class LoginComponent {
   }
 
   get f() { return this.loginForm.controls; }
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
 
   onSubmit(): void {
     this.submitted = true;

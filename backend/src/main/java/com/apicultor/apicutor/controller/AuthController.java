@@ -29,6 +29,7 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider tokenProvider;
     private final AuditService auditService;
+    private static final int MIN_PASSWORD_LENGTH = 6;
 
     private static final java.util.Set<String> ALLOWED_ROLES = java.util.Set.of(
             "ROLE_ADMIN", "ROLE_APICULTOR", "ROLE_FUNCIONARIO"
@@ -88,6 +89,12 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest) {
+        if (registerRequest == null || registerRequest.getPassword() == null) {
+            return ResponseEntity.badRequest().body("Senha é obrigatória");
+        }
+        if (!isStrongPassword(registerRequest.getPassword())) {
+            return ResponseEntity.badRequest().body("Senha deve ter no mínimo 6 caracteres, 1 letra maiúscula e 1 caractere especial.");
+        }
         if (usuarioRepository.existsByUsername(registerRequest.getUsername())) {
             return ResponseEntity.badRequest().body("Nome de usuário já está em uso!");
         }
@@ -117,6 +124,20 @@ public class AuthController {
         response.put("id", usuario.getId());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    private static boolean isStrongPassword(String password) {
+        if (password == null) return false;
+        if (password.length() < MIN_PASSWORD_LENGTH) return false;
+        boolean hasUppercase = false;
+        boolean hasSpecial = false;
+        for (int i = 0; i < password.length(); i++) {
+            char c = password.charAt(i);
+            if (Character.isUpperCase(c)) hasUppercase = true;
+            if (!Character.isLetterOrDigit(c)) hasSpecial = true;
+            if (hasUppercase && hasSpecial) return true;
+        }
+        return false;
     }
 
     public static class LoginRequest {

@@ -1,8 +1,8 @@
 -------------------------------------------------------------------------------
 Test set: com.apicultor.apicutor.controller.ColmeiaControllerTest
 -------------------------------------------------------------------------------
-Tests run: 7, Failures: 0, Errors: 6, Skipped: 0, Time elapsed: 88.48 s <<< FAILURE! -- in com.apicultor.apicutor.controller.ColmeiaControllerTest
-com.apicultor.apicutor.controller.ColmeiaControllerTest.createColmeia_funcionario_canCreateOnLinkedApiario -- Time elapsed: 0.170 s <<< ERROR!
+Tests run: 7, Failures: 0, Errors: 6, Skipped: 0, Time elapsed: 61.76 s <<< FAILURE! -- in com.apicultor.apicutor.controller.ColmeiaControllerTest
+com.apicultor.apicutor.controller.ColmeiaControllerTest.createColmeia_funcionario_canCreateOnLinkedApiario -- Time elapsed: 0.533 s <<< ERROR!
 org.springframework.dao.DataIntegrityViolationException: 
 could not execute statement [Referential integrity constraint violation: "FKP6IMMLRUSHWJ5J134GTLW8G10: PUBLIC.USUARIO_APIARIOS FOREIGN KEY(APIARIO_ID) REFERENCES PUBLIC.APIARIOS(ID) (CAST(1 AS BIGINT))"; SQL statement:
 delete from apiarios where id=? [23503-224]] [delete from apiarios where id=?]; SQL [delete from apiarios where id=?]; constraint ["FKP6IMMLRUSHWJ5J134GTLW8G10: PUBLIC.USUARIO_APIARIOS FOREIGN KEY(APIARIO_ID) REFERENCES PUBLIC.APIARIOS(ID) (CAST(1 AS BIGINT))"; SQL statement:
@@ -78,7 +78,7 @@ delete from apiarios where id=? [23503-224]
 	at org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.executeUpdate(ResultSetReturnImpl.java:280)
 	... 39 more
 
-com.apicultor.apicutor.controller.ColmeiaControllerTest.updateColmeia_owner_canUpdate -- Time elapsed: 0.168 s <<< ERROR!
+com.apicultor.apicutor.controller.ColmeiaControllerTest.updateColmeia_owner_canUpdate -- Time elapsed: 0.089 s <<< ERROR!
 org.springframework.dao.DataIntegrityViolationException: 
 could not execute statement [Referential integrity constraint violation: "FKP6IMMLRUSHWJ5J134GTLW8G10: PUBLIC.USUARIO_APIARIOS FOREIGN KEY(APIARIO_ID) REFERENCES PUBLIC.APIARIOS(ID) (CAST(1 AS BIGINT))"; SQL statement:
 delete from apiarios where id=? [23503-224]] [delete from apiarios where id=?]; SQL [delete from apiarios where id=?]; constraint ["FKP6IMMLRUSHWJ5J134GTLW8G10: PUBLIC.USUARIO_APIARIOS FOREIGN KEY(APIARIO_ID) REFERENCES PUBLIC.APIARIOS(ID) (CAST(1 AS BIGINT))"; SQL statement:
@@ -154,7 +154,7 @@ delete from apiarios where id=? [23503-224]
 	at org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.executeUpdate(ResultSetReturnImpl.java:280)
 	... 39 more
 
-com.apicultor.apicutor.controller.ColmeiaControllerTest.deleteColmeia_funcionario_forbidden -- Time elapsed: 0.065 s <<< ERROR!
+com.apicultor.apicutor.controller.ColmeiaControllerTest.deleteColmeia_funcionario_forbidden -- Time elapsed: 0.055 s <<< ERROR!
 org.springframework.dao.DataIntegrityViolationException: 
 could not execute statement [Referential integrity constraint violation: "FKP6IMMLRUSHWJ5J134GTLW8G10: PUBLIC.USUARIO_APIARIOS FOREIGN KEY(APIARIO_ID) REFERENCES PUBLIC.APIARIOS(ID) (CAST(1 AS BIGINT))"; SQL statement:
 delete from apiarios where id=? [23503-224]] [delete from apiarios where id=?]; SQL [delete from apiarios where id=?]; constraint ["FKP6IMMLRUSHWJ5J134GTLW8G10: PUBLIC.USUARIO_APIARIOS FOREIGN KEY(APIARIO_ID) REFERENCES PUBLIC.APIARIOS(ID) (CAST(1 AS BIGINT))"; SQL statement:
@@ -230,7 +230,7 @@ delete from apiarios where id=? [23503-224]
 	at org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.executeUpdate(ResultSetReturnImpl.java:280)
 	... 39 more
 
-com.apicultor.apicutor.controller.ColmeiaControllerTest.createColmeia_acceptsApiarioIdAndIdentificacao -- Time elapsed: 0.126 s <<< ERROR!
+com.apicultor.apicutor.controller.ColmeiaControllerTest.createColmeia_acceptsApiarioIdAndIdentificacao -- Time elapsed: 0.103 s <<< ERROR!
 org.springframework.dao.DataIntegrityViolationException: 
 could not execute statement [Referential integrity constraint violation: "FKP6IMMLRUSHWJ5J134GTLW8G10: PUBLIC.USUARIO_APIARIOS FOREIGN KEY(APIARIO_ID) REFERENCES PUBLIC.APIARIOS(ID) (CAST(1 AS BIGINT))"; SQL statement:
 delete from apiarios where id=? [23503-224]] [delete from apiarios where id=?]; SQL [delete from apiarios where id=?]; constraint ["FKP6IMMLRUSHWJ5J134GTLW8G10: PUBLIC.USUARIO_APIARIOS FOREIGN KEY(APIARIO_ID) REFERENCES PUBLIC.APIARIOS(ID) (CAST(1 AS BIGINT))"; SQL statement:
@@ -306,7 +306,7 @@ delete from apiarios where id=? [23503-224]
 	at org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.executeUpdate(ResultSetReturnImpl.java:280)
 	... 39 more
 
-com.apicultor.apicutor.controller.ColmeiaControllerTest.updateColmeia_funcionario_forbidden -- Time elapsed: 0.100 s <<< ERROR!
+com.apicultor.apicutor.controller.ColmeiaControllerTest.updateColmeia_funcionario_forbidden -- Time elapsed: 0.105 s <<< ERROR!
 org.springframework.dao.DataIntegrityViolationException: 
 could not execute statement [Referential integrity constraint violation: "FKP6IMMLRUSHWJ5J134GTLW8G10: PUBLIC.USUARIO_APIARIOS FOREIGN KEY(APIARIO_ID) REFERENCES PUBLIC.APIARIOS(ID) (CAST(1 AS BIGINT))"; SQL statement:
 delete from apiarios where id=? [23503-224]] [delete from apiarios where id=?]; SQL [delete from apiarios where id=?]; constraint ["FKP6IMMLRUSHWJ5J134GTLW8G10: PUBLIC.USUARIO_APIARIOS FOREIGN KEY(APIARIO_ID) REFERENCES PUBLIC.APIARIOS(ID) (CAST(1 AS BIGINT))"; SQL statement:
@@ -382,7 +382,7 @@ delete from apiarios where id=? [23503-224]
 	at org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.executeUpdate(ResultSetReturnImpl.java:280)
 	... 39 more
 
-com.apicultor.apicutor.controller.ColmeiaControllerTest.deleteColmeia_owner_canDelete -- Time elapsed: 0.070 s <<< ERROR!
+com.apicultor.apicutor.controller.ColmeiaControllerTest.deleteColmeia_owner_canDelete -- Time elapsed: 0.085 s <<< ERROR!
 org.springframework.dao.DataIntegrityViolationException: 
 could not execute statement [Referential integrity constraint violation: "FKP6IMMLRUSHWJ5J134GTLW8G10: PUBLIC.USUARIO_APIARIOS FOREIGN KEY(APIARIO_ID) REFERENCES PUBLIC.APIARIOS(ID) (CAST(1 AS BIGINT))"; SQL statement:
 delete from apiarios where id=? [23503-224]] [delete from apiarios where id=?]; SQL [delete from apiarios where id=?]; constraint ["FKP6IMMLRUSHWJ5J134GTLW8G10: PUBLIC.USUARIO_APIARIOS FOREIGN KEY(APIARIO_ID) REFERENCES PUBLIC.APIARIOS(ID) (CAST(1 AS BIGINT))"; SQL statement:
