@@ -31,6 +31,21 @@
             <i class="fas fa-chart-line"></i> Produção
           </a>
         </li>
+        <li class="nav-item" *ngIf="authService.isAuthenticated()">
+          <a class="nav-link" routerLink="/tratamentos">
+            <i class="fas fa-prescription-bottle-alt"></i> Tratamentos
+          </a>
+        </li>
+        <li class="nav-item" *ngIf="authService.isAuthenticated()">
+          <a class="nav-link" routerLink="/alimentacao">
+            <i class="fas fa-leaf"></i> Alimentação
+          </a>
+        </li>
+        <li class="nav-item" *ngIf="authService.isAuthenticated()">
+          <a class="nav-link" routerLink="/insumos">
+            <i class="fas fa-boxes"></i> Insumos
+          </a>
+        </li>
         <ng-container *ngIf="authService.isAuthenticated()">
           <li class="nav-item" *appHasRoleAny="['ROLE_APICULTOR','ROLE_ADMIN']">
             <a class="nav-link" routerLink="/funcionarios/cadastrar">

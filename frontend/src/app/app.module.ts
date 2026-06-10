@@ -26,6 +26,9 @@ import { FuncionarioCadastroComponent } from './components/funcionarios/funciona
 import { ColmeiaNovaComponent } from './components/colmeias/colmeia-nova/colmeia-nova.component';
 import { ColmeiaEditarComponent } from './components/colmeias/colmeia-editar/colmeia-editar.component';
 import { FuncionariosListaComponent } from './components/funcionarios/funcionarios-lista/funcionarios-lista.component';
+import { TratamentoComponent } from './components/tratamento/tratamento.component';
+import { AlimentacaoComponent } from './components/alimentacao/alimentacao.component';
+import { InsumosComponent } from './components/insumos/insumos.component';
 
 @Component({
   selector: 'app-acesso-negado',
@@ -69,6 +72,9 @@ export class AcessoNegadoComponent {}
     RelatoriosComponent,
     FuncionarioCadastroComponent,
     FuncionariosListaComponent,
+    TratamentoComponent,
+    AlimentacaoComponent,
+    InsumosComponent,
     RouterModule.forRoot([
       { path: '', redirectTo: '/home', pathMatch: 'full' },
       { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
@@ -88,10 +94,13 @@ export class AcessoNegadoComponent {}
       { path: 'colmeias/:id/editar', component: ColmeiaEditarComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['ROLE_APICULTOR', 'ROLE_ADMIN', 'APICULTOR', 'ADMIN'] } },
       { path: 'colmeias/:id/inspecoes', loadComponent: () => import('./components/inspecoes').then(m => m.InspecoesComponent), canActivate: [AuthGuard] },
       { path: 'producao', component: ProducaoComponent, canActivate: [AuthGuard] },
+      { path: 'tratamentos', component: TratamentoComponent, canActivate: [AuthGuard] },
+      { path: 'alimentacao', component: AlimentacaoComponent, canActivate: [AuthGuard] },
+      { path: 'insumos', component: InsumosComponent, canActivate: [AuthGuard] },
       { path: 'relatorios', component: RelatoriosComponent, canActivate: [AuthGuard] },
       { path: 'login', component: LoginComponent },
       { path: 'register', component: RegisterComponent },
-      { path: '**', redirectTo: '/dashboard' }
+      { path: '**', redirectTo: '/home' }
     ], { anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled' })
   ],
   providers: [

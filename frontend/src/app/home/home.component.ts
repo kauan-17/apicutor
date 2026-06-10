@@ -6,8 +6,8 @@ import { ApiarioService, Apiario as ApiarioSrv } from '../services/apiario.servi
 import { ColmeiaService } from '../services/colmeia.service';
 import { ProducaoService } from '../services/producao.service';
 import { AuthService } from '../auth/auth.service';
+import { FuncionarioService } from '../services/funcionario.service';
 
-// Definindo interfaces para os tipos
 interface Apiario {
   id: number;
   nome: string;
@@ -33,21 +33,44 @@ export class HomeComponent implements OnInit, AfterViewInit {
   colmeias: Colmeia[] = [];
   producaoTotal = 0;
   anoAtual = new Date().getFullYear();
-  mesAtual = new Date().getMonth() + 1; // 1-12
+  mesAtual = new Date().getMonth() + 1;
   carregando = true;
   autenticado = false;
   mostrarRecursos = false;
+
+  nomeUsuario = '';
+  emailUsuario = '';
+  usernameUsuario = '';
+  roles: string[] = [];
 
   constructor(
     private apiarioService: ApiarioService,
     private colmeiaService: ColmeiaService,
     private producaoService: ProducaoService,
     private authService: AuthService,
+    private funcionarioService: FuncionarioService,
     private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
     this.autenticado = this.authService.isAuthenticated();
+    if (this.autenticado) {
+      this.funcionarioService.getMe().pipe(
+        catchError(() => of(null))
+      ).subscribe((me: any) => {
+        if (me) {
+          this.nomeUsuario = me.nome || me.username || '';
+          this.emailUsuario = me.email || '';
+          this.usernameUsuario = me.username || '';
+          this.roles = me.roles || [];
+        } else {
+          const user = this.authService.getCurrentUser();
+          this.usernameUsuario = user?.username || '';
+          this.roles = user?.roles || [];
+          this.nomeUsuario = this.usernameUsuario;
+        }
+      });
+    }
     this.carregarDados();
   }
 
@@ -141,4 +164,46 @@ export class HomeComponent implements OnInit, AfterViewInit {
   toggleRecursos(): void {
     this.mostrarRecursos = !this.mostrarRecursos;
   }
+
+  get perfilPrincipal(): string {
+    if (this.roles.includes('ROLE_ADMIN') || this.roles.includes('ADMIN')) return 'ADMIN';
+    if (this.roles.includes('ROLE_APICULTOR') || this.roles.includes('APICULTOR')) return 'APICULTOR';
+    if (this.roles.includes('ROLE_FUNCIONARIO') || this.roles.includes('FUNCIONARIO')) return 'FUNCIONARIO';
+    return 'VISITANTE';
+  }
+
+  get perfilLabel(): string {
+    const map: Record<string, string> = {
+      ADMIN: 'Administrador',
+      APICULTOR: 'Apicultor',
+      FUNCIONARIO: 'Funcionário',
+      VISITANTE: 'Visitante'
+    };
+    return map[this.perfilPrincipal] ?? 'Usuário';
+  }
+
+  get perfilIcone(): string {
+    const map: Record<string, string> = {
+      ADMIN: 'fas fa-user-shield',
+      APICULTOR: 'fas fa-user-tie',
+      FUNCIONARIO: 'fas fa-user',
+      VISITANTE: 'fas fa-user-circle'
+    };
+    return map[this.perfilPrincipal] ?? 'fas fa-user';
+  }
+
+  get perfilCor(): string {
+    const map: Record<string, string> = {
+      ADMIN: 'danger',
+      APICULTOR: 'warning',
+      FUNCIONARIO: 'primary',
+      VISITANTE: 'secondary'
+    };
+    return map[this.perfilPrincipal] ?? 'secondary';
+  }
+
+  get isAdmin(): boolean { return this.perfilPrincipal === 'ADMIN'; }
+  get isApicultor(): boolean { return this.perfilPrincipal === 'APICULTOR'; }
+  get isFuncionario(): boolean { return this.perfilPrincipal === 'FUNCIONARIO'; }
+  get primeiroNome(): string { return (this.nomeUsuario || '').split(' ')[0]; }
 }

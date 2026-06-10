@@ -15,7 +15,7 @@ export class LoginComponent {
   loading = false;
   submitted = false;
   showPassword = false;
-  private returnUrl = '/dashboard';
+  private returnUrl = '/home';
 
   constructor(
     private formBuilder: FormBuilder,

@@ -238,42 +238,14 @@ body {
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
   position: relative !important;
   overflow: hidden !important;
-  backdrop-filter: blur(10px) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
-/* Garantir contraste máximo em todos os botões */
-.btn::after {
-  content: '' !important;
-  position: absolute !important;
-  top: -2px !important;
-  left: -2px !important;
-  right: -2px !important;
-  bottom: -2px !important;
-  background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent) !important;
-  z-index: -1 !important;
-  border-radius: inherit !important;
-  opacity: 0.5 !important;
-  transition: opacity 0.3s ease !important;
-}
-
-.btn:hover::after {
-  opacity: 1 !important;
-}
-
+/* Pseudo-elementos removidos — causavam camada translúcida sobre os botões */
+.btn::after,
 .btn::before {
-  content: '' !important;
-  position: absolute !important;
-  top: 0 !important;
-  left: -100% !important;
-  width: 100% !important;
-  height: 100% !important;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent) !important;
-  transition: left 0.6s !important;
-}
-
-.btn:hover::before {
-  left: 100% !important;
+  display: none !important;
 }
 
 /* Botões pequenos com melhor visibilidade */
@@ -326,49 +298,48 @@ body {
   font-weight: 800 !important;
 }
 
-/* Estilos específicos para botões de ação rápida */
+/* Estilos específicos para botões de ação rápida — fundo sólido obrigatório */
 .btn-outline-primary.btn-action {
-  background: linear-gradient(135deg, rgba(230, 126, 34, 0.1), rgba(230, 126, 34, 0.05)) !important;
-  color: var(--primary-strong) !important;
+  background: var(--primary-strong) !important;
+  color: #fff !important;
   border-color: var(--primary-strong) !important;
 }
 
 .btn-outline-success.btn-action {
-  background: linear-gradient(135deg, rgba(34, 153, 84, 0.1), rgba(34, 153, 84, 0.05)) !important;
-  color: var(--success-strong) !important;
+  background: var(--success-strong) !important;
+  color: #fff !important;
   border-color: var(--success-strong) !important;
 }
 
 .btn-outline-warning.btn-action {
-  background: linear-gradient(135deg, rgba(212, 172, 13, 0.1), rgba(212, 172, 13, 0.05)) !important;
-  color: var(--warning-strong) !important;
+  background: var(--warning-strong) !important;
+  color: #fff !important;
   border-color: var(--warning-strong) !important;
 }
 
 .btn-outline-info.btn-action {
-  background: linear-gradient(135deg, rgba(41, 128, 185, 0.1), rgba(41, 128, 185, 0.05)) !important;
-  color: var(--info-strong) !important;
-  border-color: var(--info-strong) !important;
+  background: var(--secondary-strong) !important;
+  color: #fff !important;
+  border-color: var(--secondary-strong) !important;
 }
 
 .btn-outline-secondary.btn-action {
-  background: linear-gradient(135deg, rgba(52, 73, 94, 0.1), rgba(52, 73, 94, 0.05)) !important;
-  color: var(--secondary-strong) !important;
-  border-color: var(--secondary-strong) !important;
+  background: #5a6268 !important;
+  color: #fff !important;
+  border-color: #5a6268 !important;
 }
 
 /* Botões Outline - Ajustado para tema apicultor */
 .btn-outline-primary {
-  color: var(--secondary-color) !important;
-  border: 2px solid var(--primary-color) !important;
-  background: rgba(212, 165, 116, 0.1) !important;
+  color: #fff !important;
+  border: 2px solid var(--primary-strong) !important;
+  background: var(--primary-strong) !important;
   transition: all 0.3s ease;
   font-weight: 600 !important;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
 .btn-outline-primary:hover {
-  background: linear-gradient(135deg, var(--primary-strong), var(--warning-color)) !important;
+  background: linear-gradient(135deg, var(--primary-strong), var(--honey-color)) !important;
   color: white !important;
   border-color: transparent !important;
   transform: translateY(-2px);
@@ -376,12 +347,11 @@ body {
 }
 
 .btn-outline-success {
-  color: var(--success-strong) !important;
-  border: 3px solid var(--success-strong) !important;
-  background: rgba(255, 255, 255, 0.9) !important;
+  color: #fff !important;
+  border: 2px solid var(--success-strong) !important;
+  background: var(--success-strong) !important;
   transition: all 0.3s ease;
   font-weight: 600 !important;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
 .btn-outline-success:hover {
@@ -393,12 +363,11 @@ body {
 }
 
 .btn-outline-warning {
-  color: var(--warning-strong) !important;
-  border: 3px solid var(--warning-strong) !important;
-  background: rgba(255, 255, 255, 0.9) !important;
+  color: #fff !important;
+  border: 2px solid var(--warning-strong) !important;
+  background: var(--warning-strong) !important;
   transition: all 0.3s ease;
   font-weight: 600 !important;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
 .btn-outline-warning:hover {
@@ -410,12 +379,11 @@ body {
 }
 
 .btn-outline-info {
-  color: var(--secondary-strong) !important;
-  border: 3px solid var(--secondary-strong) !important;
-  background: rgba(255, 255, 255, 0.9) !important;
+  color: #fff !important;
+  border: 2px solid var(--secondary-strong) !important;
+  background: var(--secondary-strong) !important;
   transition: all 0.3s ease;
   font-weight: 600 !important;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
 .btn-outline-info:hover {
@@ -427,20 +395,48 @@ body {
 }
 
 .btn-outline-secondary {
-  color: var(--secondary-strong) !important;
-  border: 3px solid var(--secondary-strong) !important;
-  background: rgba(255, 255, 255, 0.9) !important;
+  color: #fff !important;
+  border: 2px solid #5a6268 !important;
+  background: #5a6268 !important;
   transition: all 0.3s ease;
   font-weight: 600 !important;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
 .btn-outline-secondary:hover {
-  background: linear-gradient(135deg, var(--secondary-strong), #868e96) !important;
+  background: linear-gradient(135deg, #34495e, #2c3e50) !important;
   color: white !important;
   border-color: transparent !important;
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(52, 73, 94, 0.6);
+}
+
+.btn-outline-danger {
+  color: #fff !important;
+  border: 2px solid #c0392b !important;
+  background: #c0392b !important;
+  transition: all 0.3s ease;
+  font-weight: 600 !important;
+}
+
+.btn-outline-danger:hover {
+  background: linear-gradient(135deg, #c0392b, #e74c3c) !important;
+  color: white !important;
+  border-color: transparent !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(231, 76, 60, 0.6);
+}
+
+.btn-outline-light {
+  color: #fff !important;
+  border: 2px solid rgba(255,255,255,0.8) !important;
+  background: rgba(255,255,255,0.15) !important;
+  font-weight: 600 !important;
+}
+
+.btn-outline-light:hover {
+  background: rgba(255,255,255,0.3) !important;
+  color: #fff !important;
+  transform: translateY(-2px);
 }
 
 /* Removida a padronização transparente para retomar botões coloridos em todo o sistema */

@@ -1,0 +1,107 @@
+<div class="container py-4">
+  <h2 class="mb-3"><i class="fas fa-prescription-bottle-alt me-2"></i>Tratamentos e Medicamentos</h2>
+
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <label class="form-label">Apiário</label>
+      <select class="form-select" [(ngModel)]="selecionadoApiarioId" (change)="carregarColmeias()">
+        <option [ngValue]="undefined">Selecione...</option>
+        <option *ngFor="let a of apiarios" [value]="a.id">{{ a.nome }}</option>
+      </select>
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Colmeia</label>
+      <select class="form-select" [(ngModel)]="selecionadoColmeiaId" (change)="carregarTratamentos()" [disabled]="!selecionadoApiarioId">
+        <option [ngValue]="undefined">Selecione...</option>
+        <option *ngFor="let c of colmeias" [value]="c.id">{{ c.identificacao || ('Colmeia #' + c.id) }}</option>
+      </select>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="alert alert-info">Carregando...</div>
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+  <div *ngIf="sucesso" class="alert alert-success">{{ sucesso }}</div>
+
+  <div class="card mb-4" *ngIf="selecionadoColmeiaId">
+    <div class="card-header bg-warning text-dark fw-bold">
+      <i class="fas fa-plus-circle me-1"></i> Registrar Novo Tratamento
+    </div>
+    <div class="card-body">
+      <form [formGroup]="form" (ngSubmit)="salvar()">
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Data de Aplicação *</label>
+            <input class="form-control" type="date" formControlName="dataAplicacao">
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Tipo de Tratamento *</label>
+            <select class="form-select" formControlName="tipoTratamento">
+              <option value="">Selecione...</option>
+              <option *ngFor="let t of tiposTratamento" [value]="t.value">{{ t.label }}</option>
+            </select>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Produto / Medicamento *</label>
+            <input class="form-control" formControlName="produto" placeholder="Nome do produto">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Dose</label>
+            <input class="form-control" type="number" step="0.01" formControlName="dose" placeholder="Ex: 10">
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Unidade da Dose</label>
+            <input class="form-control" formControlName="unidadeDose" placeholder="Ex: ml, g, comprimidos">
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Observações</label>
+            <input class="form-control" formControlName="observacoes">
+          </div>
+        </div>
+        <button class="btn btn-warning text-dark" type="submit" [disabled]="form.invalid || loading">
+          <i class="fas fa-save me-1"></i> Salvar Tratamento
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <h5 class="mt-4" *ngIf="selecionadoColmeiaId">Histórico de Tratamentos</h5>
+  <div class="table-responsive" *ngIf="tratamentos.length">
+    <table class="table table-striped table-hover">
+      <thead class="table-warning">
+        <tr>
+          <th>Data</th>
+          <th>Tipo</th>
+          <th>Produto</th>
+          <th>Dose</th>
+          <th>Responsável</th>
+          <th>Observações</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let t of tratamentos">
+          <td>{{ t.dataAplicacao | date:'dd/MM/yyyy' }}</td>
+          <td><span class="badge bg-warning text-dark">{{ labelTipo(t.tipoTratamento) }}</span></td>
+          <td>{{ t.produto }}</td>
+          <td>{{ t.dose != null ? (t.dose + ' ' + (t.unidadeDose || '')) : '—' }}</td>
+          <td>{{ t.responsavelNome || '—' }}</td>
+          <td>{{ t.observacoes || '—' }}</td>
+          <td>
+            <button class="btn btn-sm btn-outline-danger" (click)="excluir(t.id)" title="Excluir">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p *ngIf="selecionadoColmeiaId && !loading && !tratamentos.length" class="text-muted mt-2">
+    Nenhum tratamento registrado para esta colmeia.
+  </p>
+
+  <a routerLink="/dashboard" class="btn btn-secondary mt-3">
+    <i class="fas fa-arrow-left me-1"></i> Voltar ao Dashboard
+  </a>
+</div>

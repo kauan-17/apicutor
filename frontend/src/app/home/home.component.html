@@ -6,21 +6,56 @@
       <div class="row align-items-center">
         <div class="col-lg-6">
           <div class="hero-content">
-            <h1 class="hero-title">Bem-vindo ao <span class="text-primary">Apicutor</span></h1>
+            <!-- Saudação personalizada para usuário autenticado -->
+            <ng-container *ngIf="autenticado && nomeUsuario">
+              <p class="hero-greeting">Olá, <strong>{{ primeiroNome }}</strong>!</p>
+              <h1 class="hero-title">Bem-vindo ao <span class="text-primary">Apicutor</span></h1>
+            </ng-container>
+            <ng-container *ngIf="!autenticado || !nomeUsuario">
+              <h1 class="hero-title">Bem-vindo ao <span class="text-primary">Apicutor</span></h1>
+            </ng-container>
             <p class="hero-subtitle">Sistema inteligente de gerenciamento para apicultura moderna</p>
-            <div class="hero-buttons">
+            <div class="hero-buttons" *ngIf="autenticado">
               <a routerLink="/apiarios" class="btn btn-primary btn-lg me-3">
                 <i class="fas fa-map-marked-alt me-2"></i>Meus Apiários
               </a>
               <a routerLink="/colmeias" class="btn btn-primary btn-lg">
-                <i class="fas fa-bee me-2"></i>Minhas Colmeias
+                <i class="fas fa-th me-2"></i>Minhas Colmeias
               </a>
             </div>
-            <!-- Mensagem de login removida para evitar alerta constante na Home pública -->
+            <div class="hero-buttons" *ngIf="!autenticado">
+              <a routerLink="/login" class="btn btn-primary btn-lg me-3">
+                <i class="fas fa-sign-in-alt me-2"></i>Entrar
+              </a>
+              <a routerLink="/register" class="btn btn-outline-light btn-lg">
+                <i class="fas fa-user-plus me-2"></i>Criar conta
+              </a>
+            </div>
           </div>
         </div>
         <div class="col-lg-6">
-          <div class="hero-image">
+          <!-- Card de Perfil (somente autenticado) -->
+          <div *ngIf="autenticado && nomeUsuario" class="profile-card">
+            <div class="profile-card-inner">
+              <div class="profile-avatar" [ngClass]="'bg-' + perfilCor">
+                <i [class]="perfilIcone"></i>
+              </div>
+              <div class="profile-info">
+                <h4 class="profile-name">{{ nomeUsuario }}</h4>
+                <p class="profile-username text-muted mb-1">@{{ usernameUsuario }}</p>
+                <span class="badge profile-badge" [ngClass]="'bg-' + perfilCor">
+                  <i [class]="perfilIcone + ' me-1'"></i>{{ perfilLabel }}
+                </span>
+              </div>
+            </div>
+            <div class="profile-actions mt-3">
+              <a routerLink="/dashboard" class="btn btn-sm w-100" style="background:rgba(255,255,255,0.25); color:#fff; border:1.5px solid rgba(255,255,255,0.6); font-weight:600;">
+                <i class="fas fa-tachometer-alt me-1"></i> Ir para o Dashboard
+              </a>
+            </div>
+          </div>
+          <!-- Animação para não autenticado -->
+          <div *ngIf="!autenticado" class="hero-image">
             <div class="bee-animation">
               <i class="fas fa-bee"></i>
             </div>
@@ -217,23 +252,70 @@
         </div>
       </div>
 
-      <!-- Quick Actions -->
+      <!-- Quick Actions diferenciadas por perfil -->
       <div class="row">
         <div class="col-12">
           <div class="quick-actions-card">
-            <h4 class="mb-4 text-center">
-              <i class="fas fa-bolt me-2"></i>Ações Rápidas
-            </h4>
-            <div class="row">
-              <div class="col-md-3 col-sm-6 mb-3">
-                <a *appHasRoleAny="['ROLE_APICULTOR','ROLE_ADMIN']" routerLink="/apiarios" class="btn btn-primary btn-action w-100">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+              <h4 class="mb-0">
+                <i class="fas fa-bolt me-2"></i>Ações Rápidas
+              </h4>
+              <span class="badge fs-6" [ngClass]="'bg-' + perfilCor">
+                <i [class]="perfilIcone + ' me-1'"></i>{{ perfilLabel }}
+              </span>
+            </div>
+
+            <!-- Ações do ADMINISTRADOR -->
+            <div *ngIf="isAdmin" class="row">
+              <div class="col-md-2 col-sm-4 mb-3">
+                <a routerLink="/apiarios" class="btn btn-primary btn-action w-100">
                   <i class="fas fa-map-marker-alt d-block mb-2"></i>
-                  <span>Adicionar Apiário</span>
+                  <span>Apiários</span>
+                </a>
+              </div>
+              <div class="col-md-2 col-sm-4 mb-3">
+                <a routerLink="/colmeias" class="btn btn-success btn-action w-100">
+                  <i class="fas fa-th d-block mb-2"></i>
+                  <span>Colmeias</span>
+                </a>
+              </div>
+              <div class="col-md-2 col-sm-4 mb-3">
+                <a routerLink="/producao" class="btn btn-warning btn-action w-100">
+                  <i class="fas fa-chart-line d-block mb-2"></i>
+                  <span>Produção</span>
+                </a>
+              </div>
+              <div class="col-md-2 col-sm-4 mb-3">
+                <a routerLink="/tratamentos" class="btn btn-warning btn-action w-100" style="background-color:#e67e22; border-color:#e67e22;">
+                  <i class="fas fa-prescription-bottle-alt d-block mb-2"></i>
+                  <span>Tratamentos</span>
+                </a>
+              </div>
+              <div class="col-md-2 col-sm-4 mb-3">
+                <a routerLink="/insumos" class="btn btn-secondary btn-action w-100">
+                  <i class="fas fa-boxes d-block mb-2"></i>
+                  <span>Insumos</span>
+                </a>
+              </div>
+              <div class="col-md-2 col-sm-4 mb-3">
+                <a routerLink="/funcionarios" class="btn btn-danger btn-action w-100">
+                  <i class="fas fa-users d-block mb-2"></i>
+                  <span>Funcionários</span>
+                </a>
+              </div>
+            </div>
+
+            <!-- Ações do APICULTOR -->
+            <div *ngIf="isApicultor" class="row">
+              <div class="col-md-3 col-sm-6 mb-3">
+                <a routerLink="/apiarios/novo" class="btn btn-primary btn-action w-100">
+                  <i class="fas fa-plus-circle d-block mb-2"></i>
+                  <span>Novo Apiário</span>
                 </a>
               </div>
               <div class="col-md-3 col-sm-6 mb-3">
                 <a routerLink="/colmeias" class="btn btn-success btn-action w-100">
-                  <i class="fas fa-bee d-block mb-2"></i>
+                  <i class="fas fa-th d-block mb-2"></i>
                   <span>Minhas Colmeias</span>
                 </a>
               </div>
@@ -244,12 +326,65 @@
                 </a>
               </div>
               <div class="col-md-3 col-sm-6 mb-3">
+                <a routerLink="/tratamentos" class="btn btn-warning btn-action w-100" style="background-color:#e67e22; border-color:#e67e22;">
+                  <i class="fas fa-prescription-bottle-alt d-block mb-2"></i>
+                  <span>Tratamentos</span>
+                </a>
+              </div>
+              <div class="col-md-3 col-sm-6 mb-3">
+                <a routerLink="/alimentacao" class="btn btn-success btn-action w-100" style="background-color:#27ae60; border-color:#27ae60;">
+                  <i class="fas fa-leaf d-block mb-2"></i>
+                  <span>Alimentação</span>
+                </a>
+              </div>
+              <div class="col-md-3 col-sm-6 mb-3">
+                <a routerLink="/insumos" class="btn btn-secondary btn-action w-100">
+                  <i class="fas fa-boxes d-block mb-2"></i>
+                  <span>Insumos</span>
+                </a>
+              </div>
+              <div class="col-md-3 col-sm-6 mb-3">
                 <a routerLink="/relatorios" class="btn btn-info btn-action w-100">
                   <i class="fas fa-file-alt d-block mb-2"></i>
-                  <span>Ver Relatórios</span>
+                  <span>Relatórios</span>
+                </a>
+              </div>
+              <div class="col-md-3 col-sm-6 mb-3">
+                <a routerLink="/funcionarios" class="btn btn-dark btn-action w-100">
+                  <i class="fas fa-users d-block mb-2"></i>
+                  <span>Funcionários</span>
                 </a>
               </div>
             </div>
+
+            <!-- Ações do FUNCIONÁRIO -->
+            <div *ngIf="isFuncionario" class="row">
+              <div class="col-md-3 col-sm-6 mb-3">
+                <a routerLink="/colmeias" class="btn btn-success btn-action w-100">
+                  <i class="fas fa-th d-block mb-2"></i>
+                  <span>Colmeias</span>
+                </a>
+              </div>
+              <div class="col-md-3 col-sm-6 mb-3">
+                <a routerLink="/inspecoes" class="btn btn-primary btn-action w-100">
+                  <i class="fas fa-search d-block mb-2"></i>
+                  <span>Inspeções</span>
+                </a>
+              </div>
+              <div class="col-md-3 col-sm-6 mb-3">
+                <a routerLink="/producao" class="btn btn-warning btn-action w-100">
+                  <i class="fas fa-chart-line d-block mb-2"></i>
+                  <span>Produção</span>
+                </a>
+              </div>
+              <div class="col-md-3 col-sm-6 mb-3">
+                <a routerLink="/tratamentos" class="btn btn-warning btn-action w-100" style="background-color:#e67e22; border-color:#e67e22;">
+                  <i class="fas fa-prescription-bottle-alt d-block mb-2"></i>
+                  <span>Tratamentos</span>
+                </a>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
